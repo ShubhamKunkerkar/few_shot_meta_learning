@@ -5,7 +5,8 @@ import os
 
 from MLBaseClass import MLBaseClass
 from HyperNetClasses import IdentityNet
-from CommonModels import CNN, ResNet18, FcNet, ResNet10
+from CommonModels import CNN, ResNet18, FcNet, ResNet10, LogisticRegression
+
 
 class Maml(MLBaseClass):
     def __init__(self, config: dict) -> None:
@@ -54,6 +55,10 @@ class Maml(MLBaseClass):
                 dim_output=self.config['num_ways'],
                 bn_affine=self.config['batchnorm'],
                 dropout_prob=self.config["dropout_prob"]
+            )
+        elif self.config['network_architecture'] == 'LogisticRegression':
+            base_net = LogisticRegression(
+                dim_output=self.config['num_ways']
             )
         else:
             raise NotImplementedError('Network architecture is unknown. Please implement it in the CommonModels.py.')

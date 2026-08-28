@@ -1,0 +1,163 @@
+{
+  "pipeline_stages": [
+    {
+      "stage_id": "1_preprocessing",
+      "stage_name": "Stage 1: Preprocessing Raw Data",
+      "description": "Preprocess raw CSVs into globally aligned, standardized episodic PyTorch tensors (.pt)",
+      "scripts": [
+        {
+          "name": "Tabular Preprocessing",
+          "path": "tabular/scripts/Preprocessing.py",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "stage_id": "2_training",
+      "stage_name": "Stage 2: Meta-Training",
+      "description": "Meta-train MAML, PLATIPUS, and VAMPIRE on FcNet and Logistic Regression architectures",
+      "scripts": [
+        {
+          "name": "MAML + FcNet Training",
+          "path": "tabular/experiments/fcnet/train_maml_fcnet.py",
+          "architecture": "FcNet",
+          "model": "MAML",
+          "enabled": true
+        },
+        {
+          "name": "PLATIPUS + FcNet Training",
+          "path": "tabular/experiments/fcnet/train_platipus_fcnet.py",
+          "architecture": "FcNet",
+          "model": "PLATIPUS",
+          "enabled": false
+        },
+        {
+          "name": "VAMPIRE + FcNet Training",
+          "path": "tabular/experiments/fcnet/train_vampire_fcnet.py",
+          "architecture": "FcNet",
+          "model": "VAMPIRE",
+          "enabled": false
+        },
+        {
+          "name": "MAML + Logistic Regression Training",
+          "path": "tabular/experiments/logistic_regression/train_maml_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "MAML",
+          "enabled": false
+        },
+        {
+          "name": "PLATIPUS + Logistic Regression Training",
+          "path": "tabular/experiments/logistic_regression/train_platipus_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "PLATIPUS",
+          "enabled": false
+        },
+        {
+          "name": "VAMPIRE + Logistic Regression Training",
+          "path": "tabular/experiments/logistic_regression/train_vampire_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "VAMPIRE",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "stage_id": "3_fast_adaptation_eval",
+      "stage_name": "Stage 3: Fast Adaptation Evaluation",
+      "description": "Evaluate few-shot adaptation on Test Cases (Day 1 Support -> Days 2-3 Query)",
+      "scripts": [
+        {
+          "name": "MAML + FcNet Evaluation",
+          "path": "tabular/experiments/fcnet/eval_maml_fcnet.py",
+          "architecture": "FcNet",
+          "model": "MAML",
+          "enabled": true
+        },
+        {
+          "name": "PLATIPUS + FcNet Evaluation",
+          "path": "tabular/experiments/fcnet/eval_platipus_fcnet.py",
+          "architecture": "FcNet",
+          "model": "PLATIPUS",
+          "enabled": false
+        },
+        {
+          "name": "VAMPIRE + FcNet Evaluation",
+          "path": "tabular/experiments/fcnet/eval_vampire_fcnet.py",
+          "architecture": "FcNet",
+          "model": "VAMPIRE",
+          "enabled": false
+        },
+        {
+          "name": "MAML + Logistic Regression Evaluation",
+          "path": "tabular/experiments/logistic_regression/eval_maml_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "MAML",
+          "enabled": false
+        },
+        {
+          "name": "PLATIPUS + Logistic Regression Evaluation",
+          "path": "tabular/experiments/logistic_regression/eval_platipus_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "PLATIPUS",
+          "enabled": false
+        },
+        {
+          "name": "VAMPIRE + Logistic Regression Evaluation",
+          "path": "tabular/experiments/logistic_regression/eval_vampire_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "VAMPIRE",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "stage_id": "4_cold_start_eval",
+      "stage_name": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "description": "Evaluate initialization baseline without adaptation on Test Cases (Days 2-3 Query directly)",
+      "scripts": [
+        {
+          "name": "MAML + FcNet Cold-Start Evaluation",
+          "path": "tabular/experiments/no_adaptation/eval_cold_maml_fcnet.py",
+          "architecture": "FcNet",
+          "model": "MAML",
+          "enabled": true
+        },
+        {
+          "name": "PLATIPUS + FcNet Cold-Start Evaluation",
+          "path": "tabular/experiments/no_adaptation/eval_cold_platipus_fcnet.py",
+          "architecture": "FcNet",
+          "model": "PLATIPUS",
+          "enabled": false
+        },
+        {
+          "name": "VAMPIRE + FcNet Cold-Start Evaluation",
+          "path": "tabular/experiments/no_adaptation/eval_cold_vampire_fcnet.py",
+          "architecture": "FcNet",
+          "model": "VAMPIRE",
+          "enabled": false
+        },
+        {
+          "name": "MAML + Logistic Regression Cold-Start Evaluation",
+          "path": "tabular/experiments/no_adaptation/eval_cold_maml_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "MAML",
+          "enabled": false
+        },
+        {
+          "name": "PLATIPUS + Logistic Regression Cold-Start Evaluation",
+          "path": "tabular/experiments/no_adaptation/eval_cold_platipus_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "PLATIPUS",
+          "enabled": false
+        },
+        {
+          "name": "VAMPIRE + Logistic Regression Cold-Start Evaluation",
+          "path": "tabular/experiments/no_adaptation/eval_cold_vampire_lr.py",
+          "architecture": "LogisticRegression",
+          "model": "VAMPIRE",
+          "enabled": false
+        }
+      ]
+    }
+  ]
+}

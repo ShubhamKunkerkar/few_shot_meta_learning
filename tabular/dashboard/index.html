@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabular Meta-Learning Visual Control & Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h2>MetaTabular</h2>
+          <span>Analytics & Control</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="pipeline-tab">
+          <span class="nav-icon">🚀</span>
+          <span class="nav-label">Pipeline Matrix</span>
+        </button>
+        <button class="nav-item" data-tab="results-tab">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Results & Table</span>
+          <span class="live-dot" id="resultsLiveBadge"></span>
+        </button>
+        <button class="nav-item" data-tab="config-tab">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">Hyperparameters</span>
+        </button>
+        <button class="nav-item" data-tab="terminal-tab">
+          <span class="nav-icon">🖥️</span>
+          <span class="nav-label">Raw Terminal</span>
+        </button>
+      </nav>
+
+      <div class="status-card">
+        <div class="status-header">
+          <span class="status-indicator idle" id="globalStatusIndicator"></span>
+          <span class="status-title" id="globalStatusText">Ready (Idle)</span>
+        </div>
+        <div class="status-detail" id="globalStatusDetail">No active job running</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="header-left">
+          <h1 id="pageTitle">Pipeline Orchestrator</h1>
+          <p id="pageSubtitle">Configure and trigger few-shot meta-learning workflows in chronological order</p>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-secondary" id="btnDryRun" title="Preview sequence without executing">
+            <span>👁️ Dry Run</span>
+          </button>
+          <button class="btn btn-primary" id="btnRunPipeline">
+            <span>▶ Run Pipeline</span>
+          </button>
+          <button class="btn btn-danger hidden" id="btnStopPipeline">
+            <span>⏹ Abort Run</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- TAB 1: PIPELINE MATRIX -->
+      <section class="tab-pane active" id="pipeline-tab">
+        <div class="presets-bar">
+          <div class="presets-label">⚡ Quick Presets:</div>
+          <div class="preset-buttons">
+            <button class="btn-chip" data-preset="all">Select All</button>
+            <button class="btn-chip" data-preset="none">Deselect All</button>
+            <button class="btn-chip" data-preset="maml">MAML Only</button>
+            <button class="btn-chip" data-preset="platipus">PLATIPUS Only</button>
+            <button class="btn-chip" data-preset="vampire">VAMPIRE Only</button>
+            <button class="btn-chip" data-preset="fcnet">FcNet Only</button>
+            <button class="btn-chip" data-preset="lr">Logistic Reg Only</button>
+            <button class="btn-chip" data-preset="eval_only">Eval Only</button>
+          </div>
+          <button class="btn btn-sm btn-outline" id="btnSavePipeline">💾 Save Order</button>
+        </div>
+
+        <div class="stages-container" id="stagesContainer">
+          <div class="loading-spinner">Loading pipeline stages...</div>
+        </div>
+      </section>
+
+      <!-- TAB 2: RESULTS & COMPARISON TABLE -->
+      <section class="tab-pane" id="results-tab">
+        <!-- Live Task Completion Cards -->
+        <div class="tasks-section">
+          <div class="section-header">
+            <h3>📋 Task Execution Progress</h3>
+            <span class="badge badge-info" id="taskCountBadge">0 Tasks</span>
+          </div>
+          <div class="tasks-grid" id="tasksStatusGrid">
+            <div class="empty-state">No pipeline tasks executed yet. Run the pipeline to see real-time task completion cards.</div>
+          </div>
+        </div>
+
+        <!-- Metrics Comparison Table Section -->
+        <div class="metrics-section">
+          <div class="section-header">
+            <div>
+              <h3>📈 Multi-Model & Multi-TestCase Comparison Table</h3>
+              <p class="section-desc">Side-by-side performance breakdown across all models, architectures, and test cases</p>
+            </div>
+            <div class="table-actions">
+              <button class="btn btn-sm btn-secondary" id="btnExportCsv">📥 Export CSV</button>
+              <button class="btn btn-sm btn-secondary" id="btnExportJson">📥 Export JSON</button>
+              <button class="btn btn-sm btn-outline" id="btnRefreshResults">🔄 Refresh</button>
+              <button class="btn btn-sm btn-danger" id="btnDeleteAll">🗑️ Delete All</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Filters Bar -->
+          <div class="filters-bar">
+            <div class="filter-group">
+              <span class="filter-label">Test Case:</span>
+              <div class="filter-pills" id="testCaseFilterPills">
+                <button class="pill active" data-filter-tc="all">All Test Cases</button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Evaluation Mode:</span>
+              <div class="filter-pills" id="modeFilterPills">
+                <button class="pill active" data-filter-mode="all">All Modes</button>
+                <button class="pill" data-filter-mode="Fast Adaptation">Fast Adaptation (Adapted)</button>
+                <button class="pill" data-filter-mode="Cold Start">Cold Start (Zero-Shot)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- The Comparison Table -->
+          <div class="table-container">
+            <table class="comparison-table" id="metricsTable">
+              <thead>
+                <tr>
+                  <th>Test Case</th>
+                  <th>Model</th>
+                  <th>Architecture</th>
+                  <th>Mode</th>
+                  <th>Accuracy</th>
+                  <th>Macro F1</th>
+                  <th>Class 1 F1 (Smoking)</th>
+                  <th>Class 1 Precision / Recall</th>
+                  <th>Confusion Matrix [TN, FP / FN, TP]</th>
+                </tr>
+              </thead>
+              <tbody id="metricsTableBody">
+                <tr>
+                  <td colspan="9" class="empty-table-msg">No evaluation metrics collected yet. Execute evaluation scripts to generate results.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: HYPERPARAMETERS & DATASET CONFIG -->
+      <section class="tab-pane" id="config-tab">
+        <div class="config-header-banner">
+          <div>
+            <h2>Global Meta-Learning Hyperparameters</h2>
+            <p>Universal settings applied across all meta-learning algorithms (MAML, PLATIPUS, VAMPIRE) and test cases</p>
+          </div>
+          <div class="config-banner-actions">
+            <button class="btn btn-secondary" id="btnResetConfig">↺ Reset to Factory Defaults</button>
+            <button class="btn btn-primary" id="btnSaveConfig">💾 Save & Apply to config.json</button>
+          </div>
+        </div>
+
+        <div class="config-grid">
+          <!-- CARD 1: Dataset & Episodic Splits -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">📁</span>
+                <div>
+                  <h3>1. Dataset & Episodic Splits</h3>
+                  <div class="card-subtitle">Preprocessing and Multi-Task Partitioning</div>
+                </div>
+              </div>
+              <span class="badge badge-info">Preprocessing</span>
+            </div>
+
+            <div class="form-group">
+              <label>Primary Training CSV File</label>
+              <input type="text" id="cfgPrimaryCsv" readonly class="input-disabled">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Steps Per Day (24h Window)</label>
+                <input type="number" id="cfgStepsPerDay" min="1" value="144">
+                <small class="helper-text">144 steps = 24h at 10-min sampling</small>
+              </div>
+              <div class="form-group">
+                <label>Random Seed (Reproducibility)</label>
+                <input type="number" id="cfgSeed" value="42">
+                <small class="helper-text">Ensures reproducible train/val splits</small>
+              </div>
+            </div>
+
+            <div class="form-section-title">Meta-Dataset Partition Fractions</div>
+
+            <div class="split-visualizer">
+              <div class="split-bar">
+                <div class="split-segment split-train" id="splitBarTrain" style="width: 70%;">Train 70%</div>
+                <div class="split-segment split-val" id="splitBarVal" style="width: 15%;">Val 15%</div>
+                <div class="split-segment split-test" id="splitBarTest" style="width: 15%;">Test 15%</div>
+              </div>
+            </div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label>Train Fraction</label>
+                <input type="number" id="cfgTrainFrac" step="0.05" min="0.1" max="0.9" value="0.70">
+              </div>
+              <div class="form-group">
+                <label>Val Fraction</label>
+                <input type="number" id="cfgValFrac" step="0.05" min="0.05" max="0.5" value="0.15">
+              </div>
+              <div class="form-group">
+                <label>Test Fraction</label>
+                <input type="number" id="cfgTestFrac" step="0.05" min="0.05" max="0.5" value="0.15">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Meta-Training Support Days</label>
+                <input type="number" id="cfgSupportDays" min="1" max="5" value="1">
+              </div>
+              <div class="form-group">
+                <label>Support Steps (k_shot)</label>
+                <input type="number" id="cfgKShot" min="1" value="144">
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: Universal Test Cases Evaluation -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🧪</span>
+                <div>
+                  <h3>2. Universal Test Cases Settings</h3>
+                  <div class="card-subtitle">Adaptation budget for TestCase1 ... TestCase N</div>
+                </div>
+              </div>
+              <span class="badge badge-purple">Universal</span>
+            </div>
+
+            <p class="card-desc">Defines how few-shot adaptation splits are formed across all current and future test cases.</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Test Case Support Days</label>
+                <input type="number" id="cfgTcSupportDays" min="1" max="5" value="1">
+                <small class="helper-text">Days given to model for adaptation</small>
+              </div>
+              <div class="form-group">
+                <label>Test Case k_shot (Steps)</label>
+                <input type="number" id="cfgTcKShot" min="1" value="144">
+                <small class="helper-text">Remaining steps evaluated on Query set</small>
+              </div>
+            </div>
+
+            <div class="form-section-title">Evaluation Architecture Defaults</div>
+            <div class="info-callout">
+              <span>All evaluation scripts automatically run on CPU/CUDA, standardizing 27 tabular features with full classification reports and confusion matrices.</span>
+            </div>
+          </div>
+
+          <!-- CARD 3: Outer-Loop Meta-Training & Optimization -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🧠</span>
+                <div>
+                  <h3>3. Outer-Loop Meta-Training</h3>
+                  <div class="card-subtitle">Optimization & meta-gradient updates</div>
+                </div>
+              </div>
+              <span class="badge badge-success">Meta-Training</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Total Epochs (num_epochs)</label>
+                <input type="number" id="cfgNumEpochs" min="1" max="500" value="20">
+                <small class="helper-text">Complete passes over meta-tasks</small>
+              </div>
+              <div class="form-group">
+                <label>Episodes / Epoch (num_episodes_per_epoch)</label>
+                <input type="number" id="cfgEpsPerEpoch" min="10" max="10000" value="1000">
+                <small class="helper-text">Sampled meta-tasks per epoch</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Minibatch Size (Meta-Batch)</label>
+                <input type="number" id="cfgMinibatch" min="1" max="64" value="5">
+                <small class="helper-text">Tasks aggregated per meta-step</small>
+              </div>
+              <div class="form-group">
+                <label>Outer Meta LR (meta_lr)</label>
+                <input type="number" id="cfgMetaLr" step="0.0001" min="0.00001" value="0.001">
+                <small class="helper-text">Adam learning rate for base/hyper network</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Print Frequency (minibatch_print)</label>
+                <input type="number" id="cfgMinibatchPrint" min="10" max="1000" value="250">
+                <small class="helper-text">Logging interval in episodes</small>
+              </div>
+              <div class="form-group">
+                <label>Gradient Approximation (first_order)</label>
+                <div class="toggle-row">
+                  <label class="switch">
+                    <input type="checkbox" id="cfgFirstOrder" checked>
+                    <span class="slider"></span>
+                  </label>
+                  <span class="toggle-label" id="lblFirstOrder">First-Order Approximation Enabled</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 4: Inner-Loop Fast Adaptation -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">⚡</span>
+                <div>
+                  <h3>4. Inner-Loop Fast Adaptation</h3>
+                  <div class="card-subtitle">Task-level fine-tuning on support sets</div>
+                </div>
+              </div>
+              <span class="badge badge-maml">Adaptation</span>
+            </div>
+
+            <div class="form-group">
+              <label>Inner Gradient Steps (num_inner_updates)</label>
+              <input type="number" id="cfgInnerUpdates" min="1" max="50" value="5">
+              <small class="helper-text">Number of gradient descent steps on support set during adaptation</small>
+            </div>
+
+            <div class="form-group">
+              <label>Inner Learning Rate (inner_lr / &alpha;)</label>
+              <input type="number" id="cfgInnerLr" step="0.001" min="0.0001" value="0.01">
+              <small class="helper-text">Task-specific step size used in MAML, PLATIPUS, and VAMPIRE</small>
+            </div>
+          </div>
+
+          <!-- CARD 5: Bayesian & Probabilistic Meta-Learning -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🎲</span>
+                <div>
+                  <h3>5. Probabilistic & Bayesian Parameters</h3>
+                  <div class="card-subtitle">PLATIPUS & VAMPIRE variational settings</div>
+                </div>
+              </div>
+              <span class="badge badge-platipus">Bayesian</span>
+            </div>
+
+            <div class="form-group">
+              <label>Monte Carlo Ensemble Models (num_models / M)</label>
+              <input type="number" id="cfgNumModels" min="1" max="32" value="4">
+              <small class="helper-text">Number of stochastic weight samples drawn for prediction averaging</small>
+            </div>
+
+            <div class="form-group">
+              <label>KL Divergence Regularization Weight (KL_weight / &beta;)</label>
+              <input type="number" id="cfgKlWeight" step="0.000001" min="0.0" value="0.000001">
+              <small class="helper-text">Penalty weight enforcing variational posterior closeness to prior</small>
+            </div>
+          </div>
+
+          <!-- CARD 6: Focal Loss Configuration -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🎯</span>
+                <div>
+                  <h3>6. Loss Function (Focal Loss)</h3>
+                  <div class="card-subtitle">Addressing severe class imbalance in tabular tasks</div>
+                </div>
+              </div>
+              <span class="badge badge-danger">Loss Function</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Alpha (&alpha;) Class Balance Weight</label>
+                <input type="number" id="cfgFocalAlpha" step="0.05" min="0.01" max="1.0" value="0.25">
+                <small class="helper-text">Relative weighting between Class 0 (Not Smoking) and Class 1 (Smoking)</small>
+              </div>
+              <div class="form-group">
+                <label>Gamma (&gamma;) Focusing Parameter</label>
+                <input type="number" id="cfgFocalGamma" step="0.5" min="0.0" max="5.0" value="2.0">
+                <small class="helper-text">Down-weights easy examples, focusing gradient on hard minority samples</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: RAW TERMINAL CONSOLE -->
+      <section class="tab-pane" id="terminal-tab">
+        <div class="terminal-container">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <div class="terminal-title">Raw Subprocess Output</div>
+            <div class="terminal-controls">
+              <label class="checkbox-label">
+                <input type="checkbox" id="chkAutoScroll" checked> Auto-Scroll
+              </label>
+              <button class="btn-icon" id="btnClearTerminal" title="Clear Console">🧹</button>
+              <button class="btn-icon" id="btnCopyTerminal" title="Copy Output">📋</button>
+            </div>
+          </div>
+          <pre class="terminal-body" id="terminalOutput">Waiting for execution...</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastNotification">Notification Message</div>
+
+  <script src="app.js"></script>
+</body>
+</html>

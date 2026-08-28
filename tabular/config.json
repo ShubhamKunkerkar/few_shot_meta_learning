@@ -1,0 +1,36 @@
+{
+  "dataset": {
+    "raw_dir": "tabular/data/raw",
+    "output_dir": "tabular/data/processed",
+    "primary_csv": "dataset_prepro_routine_generated.csv",
+    "steps_per_day": 144,
+    "seed": 42
+  },
+  "meta_training_split": {
+    "train_frac": 0.7,
+    "val_frac": 0.15,
+    "test_frac": 0.15,
+    "support_days": 1,
+    "k_shot": 144
+  },
+  "test_cases": {
+    "support_days": 1,
+    "k_shot": 144
+  },
+  "training_hyperparameters": {
+    "num_epochs": 20,
+    "num_episodes_per_epoch": 1000,
+    "minibatch": 5,
+    "minibatch_print": 250,
+    "meta_lr": 0.001,
+    "first_order": true,
+    "num_inner_updates": 5,
+    "inner_lr": 0.01,
+    "KL_weight": 1e-06,
+    "num_models": 4,
+    "focal_loss": {
+      "alpha": 0.25,
+      "gamma": 2.0
+    }
+  }
+}

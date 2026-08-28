@@ -404,3 +404,27 @@ class MiniCNN(torch.nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward"""
         return self.cnn(x)
+
+
+class LogisticRegression(torch.nn.Module):
+    def __init__(self, dim_output: typing.Optional[int] = None, bias: bool = True, **kwargs) -> None:
+        super(LogisticRegression, self).__init__()
+
+        self.dim_output = dim_output
+        self.bias = bias
+
+        self.net = self.construct_network()
+
+    def construct_network(self) -> torch.nn.Module:
+        net = torch.nn.Sequential()
+        net.add_module(name='flatten', module=torch.nn.Flatten(
+            start_dim=1, end_dim=-1))
+        net.add_module(
+            name='classifier',
+            module=torch.nn.LazyLinear(out_features=self.dim_output, bias=self.bias) if self.dim_output is not None
+            else torch.nn.Identity()
+        )
+        return net
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)

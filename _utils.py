@@ -263,3 +263,53 @@ def torch_module_to_functional(torch_net: torch.nn.Module) -> higher.patch._Monk
     f_net._fast_params = [[]]
 
     return f_net
+
+
+class FocalLoss(torch.nn.Module):
+    """
+    Multi-class / Binary Focal Loss implementation with class balancing weights.
+    FL(p_t) = -alpha_t * (1 - p_t)^gamma * log(p_t)
+    """
+    def __init__(self, alpha: typing.Optional[typing.Union[float, torch.Tensor, typing.List[float]]] = 0.25, gamma: float = 2.0, reduction: str = 'mean') -> None:
+        super(FocalLoss, self).__init__()
+        if alpha is not None:
+            if isinstance(alpha, (float, int)):
+                # For binary classification: class 0 gets (1 - alpha), class 1 gets alpha
+                alpha = torch.tensor([1.0 - float(alpha), float(alpha)], dtype=torch.float32)
+            elif not isinstance(alpha, torch.Tensor):
+                alpha = torch.tensor(alpha, dtype=torch.float32)
+            self.register_buffer('alpha', alpha)
+        else:
+            self.alpha = None
+        self.gamma = gamma
+        self.reduction = reduction
+
+    def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            input: (N, C) logits
+            target: (N,) ground truth class indices
+        """
+        log_p = torch.nn.functional.log_softmax(input, dim=-1)
+        p = torch.exp(log_p)
+
+        target_reshaped = target.view(-1, 1)
+        log_pt = log_p.gather(dim=-1, index=target_reshaped).view(-1)
+        pt = p.gather(dim=-1, index=target_reshaped).view(-1)
+
+        focal_weight = (1.0 - pt) ** self.gamma
+        loss = -focal_weight * log_pt
+
+        if self.alpha is not None:
+            if self.alpha.device != input.device:
+                self.alpha = self.alpha.to(input.device)
+            alpha_t = self.alpha.gather(dim=0, index=target.view(-1))
+            loss = alpha_t * loss
+
+        if self.reduction == 'mean':
+            return loss.mean()
+        elif self.reduction == 'sum':
+            return loss.sum()
+        else:
+            return loss
+

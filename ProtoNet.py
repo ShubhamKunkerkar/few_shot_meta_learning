@@ -5,13 +5,14 @@ import os
 
 from MLBaseClass import MLBaseClass
 from _utils import get_cls_prototypes, euclidean_distance, train_val_split
-from CommonModels import CNN, ResNet18
+from CommonModels import CNN, ResNet18, LogisticRegression
+
 
 class ProtoNet(MLBaseClass):
     def __init__(self, config: dict) -> None:
         super().__init__(config=config)
 
-        self.hyper_net_class = None # dummy to match with MAML and VAMPIRE
+        self.hyper_net_class = None  # dummy to match with MAML and VAMPIRE
 
     def load_model(self, resume_epoch: int, eps_dataloader: torch.utils.data.DataLoader, **kwargs) -> dict:
         """Initialize or load the protonet and its optimizer
@@ -28,19 +29,17 @@ class ProtoNet(MLBaseClass):
         if resume_epoch is None:
             resume_epoch = self.config['resume_epoch']
 
-        if self.config['network_architecture'] == 'CNN':
-            model["hyper_net"] = CNN(
-                dim_output=None,
-                bn_affine=self.config['batchnorm'],
-                stride_flag=self.config['strided']
-            )
-        elif self.config['network_architecture'] == 'ResNet18':
-            model["hyper_net"] = ResNet18(
-                dim_output=None,
-                bn_affine=self.config['batchnorm']
-            )
-        else:
-            raise NotImplementedError('Network architecture is unknown. Please implement it in the CommonModels.py.')
+        network_architectures = {
+            'CNN': lambda: CNN(dim_output=None, bn_affine=self.config['batchnorm'], stride_flag=self.config['strided']),
+            'ResNet18': lambda: ResNet18(dim_output=None, bn_affine=self.config['batchnorm']),
+            'LogisticRegression': lambda: LogisticRegression(dim_output=None)
+        }
+
+        if self.config['network_architecture'] not in network_architectures:
+            raise NotImplementedError(
+                'Network architecture is unknown. Please implement it in the CommonModels.py.')
+
+        model['hyper_net'] = network_architectures[self.config['network_architecture']]()
 
         # ---------------------------------------------------------------
         # run a dummy task to initialize lazy modules defined in base_net
@@ -81,7 +80,7 @@ class ProtoNet(MLBaseClass):
             for param_group in model["optimizer"].param_groups:
                 if param_group['lr'] != self.config['meta_lr']:
                     param_group['lr'] = self.config['meta_lr']
-            
+
         model['f_base_net'] = model['hyper_net']
 
         return model

@@ -83,12 +83,12 @@ class EnsembleNet(torch.nn.Module):
         for param in base_state_dict.values():
             self.parameter_shapes.append(param.shape)
 
-        self.params = torch.nn.ParameterList(parameters=None) # empty parameter list
+        self.params = torch.nn.ParameterList() # empty parameter list
 
         for _ in range(self.num_particles):
             params_list = intialize_parameters(state_dict=base_state_dict) # list of tensors
             params_vec = torch.nn.utils.parameters_to_vector(parameters=params_list) # flattened tensor
-            self.params.append(parameter=torch.nn.Parameter(data=params_vec))
+            self.params.append(torch.nn.Parameter(data=params_vec))
         
         self.num_base_params = np.sum([torch.numel(p) for p in self.params[0]])
 
@@ -126,19 +126,19 @@ class PlatipusNet(torch.nn.Module):
             self.num_base_params += np.prod(param.shape)
 
         # initialize ParameterList
-        self.params = torch.nn.ParameterList(parameters=None)
+        self.params = torch.nn.ParameterList()
 
         # add parameters into ParameterList
-        self.params.append(parameter=torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,))))
-        self.params.append(parameter=torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,)) - 4))
-        self.params.append(parameter=torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,)) - 4))
+        self.params.append(torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,))))
+        self.params.append(torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,)) - 4))
+        self.params.append(torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,)) - 4))
         # for _ in ("mu_theta", "log_sigma_theta", "log_v_q"):
         #     params_list = intialize_parameters(state_dict=base_state_dict)
         #     params_vec = torch.nn.utils.parameters_to_vector(parameters=params_list) - 4 # flattened tensor
-        #     self.params.append(parameter=torch.nn.Parameter(data=params_vec))
+        #     self.params.append(torch.nn.Parameter(data=params_vec))
         
-        self.params.append(parameter=torch.nn.Parameter(data=torch.tensor(0.01))) # gamma_p
-        self.params.append(parameter=torch.nn.Parameter(data=torch.tensor(0.01))) # gamma_q
+        self.params.append(torch.nn.Parameter(data=torch.tensor(0.01))) # gamma_p
+        self.params.append(torch.nn.Parameter(data=torch.tensor(0.01))) # gamma_q
 
     def forward(self) -> dict:
         """Generate a dictionary consisting of meta-paramters

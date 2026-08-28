@@ -9,11 +9,12 @@ import typing
 import logging
 
 from MLBaseClass import MLBaseClass
-from CommonModels import CNN, FcNet
+from CommonModels import CNN, FcNet, LogisticRegression
 from HyperNetClasses import IdentityNet
 from _utils import torch_module_to_functional
 
 logging.basicConfig(level=logging.INFO)
+
 
 def vector_to_parameters(
     vec: torch.Tensor,
@@ -38,8 +39,9 @@ def vector_to_parameters(
         params.append(param)
 
         pointer += num_param
-    
+
     return params
+
 
 class FunctionalGenerator(torch.nn.Module):
     """a class for the generator"""
@@ -123,6 +125,7 @@ class FunctionalGenerator(torch.nn.Module):
 
         return params
 
+
 class Simpa(MLBaseClass):
     """Implementation of Simpa"""
 
@@ -173,19 +176,17 @@ class Simpa(MLBaseClass):
 
         # region BASE-NET
         # construct the base network base on the input "network_architecture"
-        if self.config['network_architecture'] == 'FcNet':
-            base_net = FcNet(
-                dim_output=self.config['num_ways'],
-                num_hidden_units=(40, 40)
-            )
-        elif self.config['network_architecture'] == 'CNN':
-            base_net = CNN(
-                dim_output=self.config['num_ways'],
-                bn_affine=self.config['batchnorm'],
-                stride_flag=self.config['strided']
-            )
-        else:
-            raise NotImplementedError('Network architecture is unknown. Please implement it in the CommonModels.py.')
+        network_architectures = {
+            'FcNet': lambda: FcNet(dim_output=self.config['num_ways'], num_hidden_units=(40, 40)),
+            'CNN': lambda: CNN(dim_output=self.config['num_ways'], bn_affine=self.config['batchnorm'], stride_flag=self.config['strided']),
+            'LogisticRegression': lambda: LogisticRegression(dim_output=self.config['num_ways'])
+        }
+
+        if self.config['network_architecture'] not in network_architectures:
+            raise NotImplementedError(
+                'Network architecture is unknown. Please implement it in the CommonModels.py.')
+
+        base_net = network_architectures[self.config['network_architecture']]()
 
         # ---------------------------------------------------------------
         # run a dummy task to initialize lazy modules defined in base_net
@@ -299,7 +300,7 @@ class Simpa(MLBaseClass):
                 self.config['logdir'],
                 'Epoch_{0:d}.pt'.format(resume_epoch)
             )
-            
+
             # load file
             saved_checkpoint = torch.load(
                 f=checkpoint_path,
@@ -326,7 +327,7 @@ class Simpa(MLBaseClass):
             # update learning rate
             for param_group in model['optimizer'].param_groups:
                 param_group['lr'] = self.config['meta_lr']
-            
+
             for param_group in model['phi_optimizer'].param_groups:
                 param_group['lr'] = self.config['phi_lr']
 
@@ -428,13 +429,11 @@ class Simpa(MLBaseClass):
                         / self.config['epsilon']) / (2 * (y_v.numel() - 1))
                     KL_loss = torch.sqrt(input=KL_loss)
 
-                    
                     if torch.isnan(KL_loss) or (KL_loss < 0):
                         KL_loss = 0.
 
                     loss = (loss + KL_loss) / self.config['minibatch']
                     loss.backward()
-                        
 
                     # update meta-parameters
                     if ((eps_count + 1) % self.config['minibatch'] == 0):
@@ -707,7 +706,7 @@ class Simpa(MLBaseClass):
         y_pred = 0
         for logits_ in logits:
             y_pred = y_pred + torch.softmax(input=logits_, dim=1)
-        
+
         y_pred = y_pred / len(logits)
 
         accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
@@ -738,11 +737,11 @@ class Simpa(MLBaseClass):
                 input=model['f_phi_base_net'].forward(param_vecs, params=phi_params),
                 dim=(0, 1)
             )
-        
+
         KL_lower_bound = KL_lower_bound - np.log(num_samples)
 
         return KL_lower_bound
-    
+
     def train_phi(
         self,
         generator_params: typing.List[torch.Tensor],

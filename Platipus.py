@@ -203,21 +203,24 @@ class Platipus(object):
                             # reset monitoring variables
                             loss_monitor = 0.
 
-                            # -------------------------
-                            # Validation
-                            # -------------------------
-                            if val_dataloader is not None:
-                                loss_temp, accuracy_temp = self.evaluate(
-                                    num_eps=self.config['num_episodes'],
-                                    eps_dataloader=val_dataloader,
-                                    model=model
-                                )
+                            pass
 
-                                tb_writer.add_scalar(tag="Val_NLL", scalar_value=np.mean(loss_temp), global_step=global_step)
-                                tb_writer.add_scalar(tag="Val_Accuracy", scalar_value=np.mean(accuracy_temp), global_step=global_step)
-
-                                del loss_temp
-                                del accuracy_temp
+                # -------------------------
+                # Validation (End of Epoch)
+                # -------------------------
+                val_nll_mean, val_acc_mean = 0.0, 0.0
+                if val_dataloader is not None:
+                    loss_temp, accuracy_temp = self.evaluate(
+                        num_eps=self.config['num_episodes'],
+                        eps_dataloader=val_dataloader,
+                        model=model
+                    )
+                    val_nll_mean = float(np.mean(loss_temp))
+                    val_acc_mean = float(np.mean(accuracy_temp))
+                    
+                    # Log to TensorBoard using the last global_step of the epoch
+                    tb_writer.add_scalar(tag="Val_NLL", scalar_value=val_nll_mean, global_step=global_step)
+                    tb_writer.add_scalar(tag="Val_Accuracy", scalar_value=val_acc_mean, global_step=global_step)
 
                 # save model
                 checkpoint = {
@@ -226,7 +229,11 @@ class Platipus(object):
                 }
                 checkpoint_path = os.path.join(self.config["logdir"], "Epoch_{0:d}.pt".format(epoch_id + 1))
                 torch.save(obj=checkpoint, f=checkpoint_path)
-                print("State dictionaries are saved into {0:s}\n".format(checkpoint_path))
+                # --- Clean Console Logging ---
+                if val_dataloader is not None:
+                    print(f"[Epoch {epoch_id + 1}/{self.config['resume_epoch'] + self.config['num_epochs']}] Saved to {checkpoint_path} | Val NLL: {val_nll_mean:.4f} | Val Acc: {val_acc_mean:.2f}%")
+                else:
+                    print(f"[Epoch {epoch_id + 1}/{self.config['resume_epoch'] + self.config['num_epochs']}] Saved to {checkpoint_path}")
 
             print("Training is completed.")
         finally:
@@ -266,17 +273,19 @@ class Platipus(object):
         return loss, accuracy
             
 
-    # def test(self, num_eps: int, eps_dataloader: torch.utils.data.DataLoader) -> None:
-    #     """Evaluate the performance
-    #     """
-    #     print("Evaluation is started.\n")
+    def test(self, num_eps: int, eps_dataloader: torch.utils.data.DataLoader) -> None:
+        """Evaluate the performance
+        """
+        print("Evaluation is started.\n")
 
-    #     model = self.load_model(resume_epoch=self.config["resume_epoch"], hyper_net_class=self.hyper_net_class, eps_generator=eps_generator)
+        epoch = self.config.get("resume_epoch", 0)
+        if not epoch:
+            epoch = self.config.get("num_epochs", 20)
 
-    #     # get list of episode names, each episode name consists of classes
-    #     eps = get_episodes(episode_file_path=self.config["episode_file"])
+        model = self.load_model(resume_epoch=epoch, hyper_net_class=self.hyper_net_class, eps_dataloader=eps_dataloader)
 
-    #     _, accuracy = self.evaluate(eps=eps, eps_generator=eps_generator, model=model)
+        loss, accuracy = self.evaluate(num_eps=num_eps, eps_dataloader=eps_dataloader, model=model)
 
-    #     print("Accuracy = {0:.2f} +/- {1:.2f}\n".format(np.mean(accuracy), 1.96 * np.std(accuracy) / np.sqrt(len(accuracy))))
-    #     return None
+        print('NLL = {0} +/- {1}'.format(np.mean(loss), 1.96 * np.std(loss) / np.sqrt(len(loss))))
+        print("Accuracy = {0:.2f} +/- {1:.2f}\n".format(np.mean(accuracy), 1.96 * np.std(accuracy) / np.sqrt(len(accuracy))))
+        return None

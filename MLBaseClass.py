@@ -205,25 +205,26 @@ class MLBaseClass(object):
                             # reset monitoring variables
                             loss_monitor = 0.
 
-                            # -------------------------
-                            # Validation
-                            # -------------------------
-                            if val_dataloader is not None:
-                                # turn on EVAL mode to disable dropout
-                                model["f_base_net"].eval()
+                            pass
 
-                                loss_temp, accuracy_temp = self.evaluate(
-                                    num_eps=self.config['num_episodes'],
-                                    eps_dataloader=val_dataloader,
-                                    model=model
-                                )
-
-                                tb_writer.add_scalar(tag="Val_NLL", scalar_value=np.mean(loss_temp), global_step=global_step)
-                                tb_writer.add_scalar(tag="Val_Accuracy", scalar_value=np.mean(accuracy_temp), global_step=global_step)
-
-                                model["f_base_net"].train()
-                                del loss_temp
-                                del accuracy_temp
+                # -------------------------
+                # Validation (End of Epoch)
+                # -------------------------
+                val_nll_mean, val_acc_mean = 0.0, 0.0
+                if val_dataloader is not None:
+                    model["f_base_net"].eval()
+                    loss_temp, accuracy_temp = self.evaluate(
+                        num_eps=self.config['num_episodes'],
+                        eps_dataloader=val_dataloader,
+                        model=model
+                    )
+                    val_nll_mean = float(np.mean(loss_temp))
+                    val_acc_mean = float(np.mean(accuracy_temp))
+                    
+                    # Log to TensorBoard using the last global_step of the epoch
+                    tb_writer.add_scalar(tag="Val_NLL", scalar_value=val_nll_mean, global_step=global_step)
+                    tb_writer.add_scalar(tag="Val_Accuracy", scalar_value=val_acc_mean, global_step=global_step)
+                    model["f_base_net"].train()
 
                 # save model
                 checkpoint = {
@@ -232,7 +233,12 @@ class MLBaseClass(object):
                 }
                 checkpoint_path = os.path.join(self.config['logdir'], 'Epoch_{0:d}.pt'.format(epoch_id + 1))
                 torch.save(obj=checkpoint, f=checkpoint_path)
-                print('State dictionaries are saved into {0:s}\n'.format(checkpoint_path))
+                
+                # --- Clean Console Logging ---
+                if val_dataloader is not None:
+                    print(f"[Epoch {epoch_id + 1}/{self.config['resume_epoch'] + self.config['num_epochs']}] Saved to {checkpoint_path} | Val NLL: {val_nll_mean:.4f} | Val Acc: {val_acc_mean:.2f}%")
+                else:
+                    print(f"[Epoch {epoch_id + 1}/{self.config['resume_epoch'] + self.config['num_epochs']}] Saved to {checkpoint_path}")
 
             print('Training is completed.')
         finally:

@@ -1,0 +1,13 @@
+name: few_shot_meta_learning
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy<2
+  - scipy
+  - pip
+  - pip:
+    - torch>=1.8.1
+    - torchvision
+    - higher
+    - tensorboard
