@@ -163,7 +163,21 @@ class ResNet10(torch.nn.Module):
         """Create an instance of Resnet-10 with the batch-norm layer modified
         """
         # initialize a Resnet-10 instance
-        net = torchvision.models.resnet._resnet(arch="resnet10", block=torchvision.models.resnet.BasicBlock, layers=[1, 1, 1, 1], pretrained=False, progress=False)
+        try:
+            net = torchvision.models.resnet._resnet(
+                weights=None,
+                progress=False,
+                block=torchvision.models.resnet.BasicBlock,
+                layers=[1, 1, 1, 1]
+            )
+        except TypeError:
+            net = torchvision.models.resnet._resnet(
+                arch="resnet10",
+                block=torchvision.models.resnet.BasicBlock,
+                layers=[1, 1, 1, 1],
+                pretrained=False,
+                progress=False
+            )
 
         # the first layer will be a lazy convolutional layer with any input channels
         net.conv1 = torch.nn.LazyConv2d(
@@ -243,7 +257,10 @@ class ResNet18(torch.nn.Module):
     def modified_resnet18(self):
         """
         """
-        net = resnet18(pretrained=False)
+        try:
+            net = resnet18(weights=None)
+        except TypeError:
+            net = resnet18(pretrained=False)
 
         # modify the resnet to suit the data
         net.conv1 = torch.nn.LazyConv2d(

@@ -130,7 +130,7 @@ class Vampire2(MLBaseClass):
 
             KL_div = KL_div + torch.sum(input=torch.square(input=p_mean))
             KL_div = KL_div + torch.sum(input=torch.exp(input=2 * p_log_std))
-            KL_div = KL_div - n
+            KL_div = KL_div - torch.numel(p_mean)
             KL_div = KL_div - 2 * torch.sum(input=p_log_std)
 
         KL_div = KL_div / 2

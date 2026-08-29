@@ -12,7 +12,7 @@ REPO_ROOT = str(Path(__file__).resolve().parents[3])
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
-from tabular.dataloader.TabularDataLoader import tabular_train_val_split, load_config
+from tabular.dataloader.TabularDataLoader import tabular_train_val_split, load_config, resolve_device, find_best_checkpoint
 from tabular.metrics_utils import compute_metrics
 from _utils import FocalLoss
 
@@ -23,11 +23,11 @@ def main():
     args = parser.parse_args()
 
     cfg = load_config()
-    hparams = cfg.get('training_hyperparameters', {})
-    tc_cfg = cfg.get('test_cases', {})
-    loss_cfg = hparams.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
+    cold_cfg = cfg.get('cold_start_eval', cfg.get('test_cases', {}))
+    loss_cfg = cold_cfg.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
 
     data_dir = os.path.join(REPO_ROOT, 'tabular', 'data', 'processed')
+    log_dir = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_maml_lr')
     all_task_files = sorted(glob.glob(os.path.join(data_dir, "*_tasks.pt")))
     test_case_files = [f for f in all_task_files if "dataset_prepro" not in os.path.basename(f)]
 
@@ -41,32 +41,40 @@ def main():
     for f in test_case_files:
         print(f"  - {os.path.basename(f)}")
 
-    k_shot = tc_cfg.get('k_shot', 144)
+    # Automatically find best checkpoint epoch based on peak validation accuracy
+    best_epoch, best_ckpt_path, best_val_acc = find_best_checkpoint(log_dir)
+    acc_str = f" (Peak Val Acc: {best_val_acc:.2f}%)" if best_val_acc is not None else ""
+    print(f"\n[AUTO-CHECKPOINT] Automatically selected best model: Epoch {best_epoch}{acc_str}")
+
+    STEPS_PER_DAY = 144
+    support_days = cold_cfg.get('support_days', 1)
+    k_shot = support_days * STEPS_PER_DAY
+    device = resolve_device(cold_cfg.get('device', 'cuda'))
 
     config = {
         'num_ways': 2,
         'k_shot': k_shot,
-        'device': torch.device('cpu'),
+        'device': device,
         'network_architecture': 'LogisticRegression',
         'train_val_split_function': tabular_train_val_split,
-        'num_inner_updates': hparams.get('num_inner_updates', 5),
-        'inner_lr': hparams.get('inner_lr', 0.01),
-        'meta_lr': hparams.get('meta_lr', 1e-3),
-        'KL_weight': hparams.get('KL_weight', 1e-6),
-        'num_models': hparams.get('num_models', 4),
+        'num_inner_updates': 0,
+        'inner_lr': 0.01,
+        'meta_lr': 1e-3,
+        'KL_weight': 1e-6,
+        'num_models': cold_cfg.get('num_models', 4),
         'first_order': True,
         'train_flag': False,
-        'resume_epoch': hparams.get('num_epochs', 20),
-        'num_epochs': hparams.get('num_epochs', 20),
+        'resume_epoch': best_epoch,
+        'num_epochs': best_epoch,
         'num_episodes': 1,
         'num_episodes_per_epoch': 1,
         'minibatch': 1,
         'minibatch_print': 1,
-        'logdir': os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_maml_lr'),
+        'logdir': log_dir,
         'loss_function': FocalLoss(alpha=loss_cfg.get('alpha', 0.25), gamma=loss_cfg.get('gamma', 2.0))
     }
 
-    print("\nInitializing MAML and loading pre-trained model (Epoch 20)...")
+    print(f"Initializing MAML on {device} and loading pre-trained model (Epoch {best_epoch})...")
     from Maml import Maml
     maml = Maml(config=config)
 
@@ -78,7 +86,7 @@ def main():
         "y_q": dummy_tasks[0]['y_q'].unsqueeze(0),
         "task_id": int(dummy_tasks[0].get('task_id', 1))
     }]
-    model = maml.load_model(resume_epoch=config['num_epochs'], hyper_net_class=maml.hyper_net_class, eps_dataloader=dummy_ep)
+    model = maml.load_model(resume_epoch=best_epoch, hyper_net_class=maml.hyper_net_class, eps_dataloader=dummy_ep)
 
     for tc_path in test_case_files:
         tc_name = os.path.basename(tc_path)
@@ -97,8 +105,8 @@ def main():
         }]
 
         split_data = tabular_train_val_split(ep[0])
-        x_v = split_data['x_v'].to(config['device'])
-        y_v = split_data['y_v'].to(config['device'])
+        x_v = split_data['x_v'].to(device)
+        y_v = split_data['y_v'].to(device)
 
         logits = maml.prediction(x=x_v, adapted_hyper_net=model["hyper_net"], model=model)
         y_pred = torch.softmax(input=logits, dim=1).argmax(dim=1).cpu().numpy()

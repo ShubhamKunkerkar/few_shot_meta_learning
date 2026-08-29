@@ -45,6 +45,26 @@ process_is_running = False
 process_exit_code = None
 
 
+def get_python_executable():
+    """Returns the python executable containing torch, checking virtualenvs if needed."""
+    try:
+        import torch
+        return sys.executable
+    except ImportError:
+        pass
+
+    candidates = [
+        os.path.expanduser(r"~\.conda\envs\few_shot_meta_learning\python.exe"),
+        os.path.expanduser(r"~\anaconda3\envs\few_shot_meta_learning\python.exe"),
+        os.path.expanduser(r"~\miniconda3\envs\few_shot_meta_learning\python.exe"),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return sys.executable
+
+
+
 def log_listener(proc):
     """Reads stdout and stderr from the subprocess and buffers into execution_logs."""
     global process_is_running, process_exit_code
@@ -61,6 +81,7 @@ def log_listener(proc):
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
     daemon_threads = True
+    allow_reuse_address = True
 
 
 class DashboardHandler(BaseHTTPRequestHandler):
@@ -176,7 +197,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
             process_is_running = True
             process_exit_code = None
 
-            cmd = [sys.executable, "-u", RUNNER_SCRIPT]
+            py_exec = get_python_executable()
+            cmd = [py_exec, "-u", RUNNER_SCRIPT]
 
             # Optional extra CLI flags
             if data.get("stage") and data.get("stage") != "all":
@@ -251,6 +273,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self._set_headers(status=200)
                 self.wfile.write(json.dumps({"status": "idle", "message": "No running process to stop"}).encode("utf-8"))
 
+    def log_message(self, format, *args):
+        # Clean logging
+        sys.stderr.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {format % args}\n")
+        sys.stderr.flush()
+
 
 def start_server(port=8050):
     server = ThreadedHTTPServer(("127.0.0.1", port), DashboardHandler)
@@ -259,10 +286,17 @@ def start_server(port=8050):
     print(f" URL: http://127.0.0.1:{port}")
     print(f"=======================================================\n")
     try:
-        server.serve_forever()
-    except KeyboardInterrupt:
+        while True:
+            try:
+                server.serve_forever()
+            except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+                continue
+    except (KeyboardInterrupt, SystemExit):
         print("\nShutting down dashboard server...")
-        server.server_close()
+        try:
+            server.server_close()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
@@ -271,3 +305,4 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8050, help="Port to listen on (default 8050)")
     args = parser.parse_args()
     start_server(port=args.port)
+

@@ -94,22 +94,22 @@ def normalize_labels(labels: torch.Tensor) -> typing.Tuple[torch.Tensor, int]:
     
     return out, len(label_dict)
 
-def train_val_split_regression(eps_data: typing.List[torch.Tensor], k_shot: float) -> typing.Dict[str, torch.Tensor]:
+def train_val_split_regression(eps_data: typing.List[torch.Tensor], k_shot: int) -> typing.Dict[str, torch.Tensor]:
     """split the data for regression
     Args:
         eps_data: a list of 2 tensors: x and y
         k_shot:
     """
     data = {}
+    k_shot = int(k_shot)
 
     v_ids = [i for i in range(eps_data[0].numel())]
 
     k_ids = random.sample(population=v_ids, k=k_shot)
     v_ids = [v for v in v_ids if v not in k_ids]
 
-    # due to the usage of data loader, the data is in shape (1, num_samples)
-    # hence, we need to transpose to get the format of mini-batch of samples
-    eps_data_batch = [eps_data[i].T for i in range(len(eps_data))]
+    # Reshape each component to (num_samples, 1) so 1D inputs have feature dim 1
+    eps_data_batch = [eps_data[i].view(-1, 1) for i in range(len(eps_data))]
 
     data['x_t'] = eps_data_batch[0][k_ids]
     data['y_t'] = eps_data_batch[1][k_ids]
@@ -301,9 +301,8 @@ class FocalLoss(torch.nn.Module):
         loss = -focal_weight * log_pt
 
         if self.alpha is not None:
-            if self.alpha.device != input.device:
-                self.alpha = self.alpha.to(input.device)
-            alpha_t = self.alpha.gather(dim=0, index=target.view(-1))
+            alpha = self.alpha.to(input.device)
+            alpha_t = alpha.gather(dim=0, index=target.view(-1))
             loss = alpha_t * loss
 
         if self.reduction == 'mean':

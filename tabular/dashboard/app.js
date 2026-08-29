@@ -11,7 +11,8 @@ let isCurrentlyRunning = false;
 
 // Filter state for comparison table
 let activeTcFilter = 'all';
-let activeModeFilter = 'all';
+let activeModelFilter = 'all';
+let activeArchFilter = 'all';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
@@ -275,15 +276,6 @@ function renderTasksStatus(tasks) {
 }
 
 function initFilterPills() {
-  document.querySelectorAll('#modeFilterPills .pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#modeFilterPills .pill').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      activeModeFilter = btn.getAttribute('data-filter-mode');
-      renderComparisonTable(resultsData.metrics || []);
-    });
-  });
-
   document.getElementById('btnRefreshResults').addEventListener('click', loadResults);
   document.getElementById('btnExportCsv').addEventListener('click', exportResultsCsv);
   document.getElementById('btnExportJson').addEventListener('click', exportResultsJson);
@@ -309,6 +301,7 @@ async function deleteAllResults() {
 
 function updateTestCaseFilterPills(metrics) {
   const container = document.getElementById('testCaseFilterPills');
+  if (!container) return;
   const uniqueTcs = sortedUnique(metrics.map(m => m.test_case));
 
   let html = `<button class="pill ${activeTcFilter === 'all' ? 'active' : ''}" data-filter-tc="all">All Test Cases</button>`;
@@ -328,65 +321,206 @@ function updateTestCaseFilterPills(metrics) {
   });
 }
 
+function updateModelFilterPills(metrics) {
+  const container = document.getElementById('modelFilterPills');
+  if (!container) return;
+  
+  // Standard techniques plus any discovered from metrics
+  const defaultModels = ['MAML', 'PLATIPUS', 'VAMPIRE'];
+  const metricsModels = sortedUnique(metrics.map(m => m.model));
+  const allModels = Array.from(new Set([...defaultModels, ...metricsModels]));
+
+  let html = `<button class="pill ${activeModelFilter === 'all' ? 'active' : ''}" data-filter-model="all">All Techniques</button>`;
+  allModels.forEach(m => {
+    const isActive = (activeModelFilter.toLowerCase() === m.toLowerCase());
+    html += `<button class="pill ${isActive ? 'active' : ''}" data-filter-model="${m}">${m}</button>`;
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      activeModelFilter = btn.getAttribute('data-filter-model');
+      renderComparisonTable(resultsData.metrics || []);
+    });
+  });
+}
+
+function updateArchFilterPills(metrics) {
+  const container = document.getElementById('archFilterPills');
+  if (!container) return;
+
+  const defaultArchs = [
+    { id: 'FcNet', label: 'FcNet' },
+    { id: 'LogisticRegression', label: 'Logistic Regression' }
+  ];
+  
+  let html = `<button class="pill ${activeArchFilter === 'all' ? 'active' : ''}" data-filter-arch="all">All Architectures</button>`;
+  defaultArchs.forEach(a => {
+    const isActive = (activeArchFilter.toLowerCase() === a.id.toLowerCase());
+    html += `<button class="pill ${isActive ? 'active' : ''}" data-filter-arch="${a.id}">${a.label}</button>`;
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('.pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      activeArchFilter = btn.getAttribute('data-filter-arch');
+      renderComparisonTable(resultsData.metrics || []);
+    });
+  });
+}
+
 function sortedUnique(arr) {
   return Array.from(new Set(arr.filter(Boolean))).sort();
 }
 
 function renderComparisonTable(metrics) {
   updateTestCaseFilterPills(metrics);
+  updateModelFilterPills(metrics);
+  updateArchFilterPills(metrics);
 
   const tbody = document.getElementById('metricsTableBody');
   tbody.innerHTML = '';
 
   if (!metrics || metrics.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-table-msg">No evaluation metrics recorded yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="15" class="empty-table-msg">No evaluation metrics recorded yet.</td></tr>';
     return;
   }
 
-  // Filter metrics
-  let filtered = metrics;
-  if (activeTcFilter !== 'all') {
-    filtered = filtered.filter(m => m.test_case === activeTcFilter);
-  }
-  if (activeModeFilter !== 'all') {
-    filtered = filtered.filter(m => m.mode === activeModeFilter);
-  }
+  // Group metrics by (test_case, model, architecture)
+  const grouped = {};
+  metrics.forEach(m => {
+    // Apply Test Case filter
+    if (activeTcFilter !== 'all' && m.test_case !== activeTcFilter) {
+      return;
+    }
 
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty-table-msg">No metrics match the current filter selection.</td></tr>';
+    const key = `${m.test_case}__${m.model}__${m.architecture}`;
+    if (!grouped[key]) {
+      grouped[key] = {
+        test_case: m.test_case,
+        model: m.model,
+        architecture: m.architecture,
+        adapted: null,
+        cold: null
+      };
+    }
+
+    const mode = (m.mode || '').toLowerCase();
+    if (mode.includes('fast') || mode.includes('adapt')) {
+      grouped[key].adapted = m;
+    } else {
+      grouped[key].cold = m;
+    }
+  });
+
+  const rowKeys = Object.keys(grouped).sort();
+  if (rowKeys.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="15" class="empty-table-msg">No metrics match the current filter selection.</td></tr>';
     return;
   }
 
-  // Find max accuracy and F1 for highlighting
-  const maxAcc = Math.max(...filtered.map(m => m.accuracy || 0));
-  const maxF1 = Math.max(...filtered.map(m => m.macro_f1 || 0));
+  // Filter by Meta Technique (Model) and Architecture
+  const rows = [];
+  rowKeys.forEach(k => {
+    const item = grouped[k];
+    if (activeModelFilter !== 'all' && (item.model || '').toLowerCase() !== activeModelFilter.toLowerCase()) {
+      return;
+    }
+    if (activeArchFilter !== 'all' && (item.architecture || '').toLowerCase() !== activeArchFilter.toLowerCase()) {
+      return;
+    }
+    rows.push(item);
+  });
 
-  filtered.forEach(m => {
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="15" class="empty-table-msg">No metrics match the current technique / architecture filter selection.</td></tr>';
+    return;
+  }
+
+  // Find max accuracy among adapted and cold
+  const maxAdaptedAcc = Math.max(...rows.filter(r => r.adapted).map(r => r.adapted.accuracy || 0), 0);
+  const maxColdAcc = Math.max(...rows.filter(r => r.cold).map(r => r.cold.accuracy || 0), 0);
+
+  rows.forEach(item => {
     const tr = document.createElement('tr');
 
-    const isTopAcc = (m.accuracy === maxAcc && maxAcc > 0);
-    const isTopF1 = (m.macro_f1 === maxF1 && maxF1 > 0);
+    const modelBadge = `<span class="badge badge-${(item.model || '').toLowerCase()}">${item.model}</span>`;
+    const archBadge = `<span class="badge badge-arch">${item.architecture}</span>`;
 
-    const modelBadge = `<span class="badge badge-${(m.model || '').toLowerCase()}">${m.model}</span>`;
-    const modeBadge = `<span class="mode-pill ${m.mode === 'Fast Adaptation' ? 'mode-adapted' : 'mode-cold'}">${m.mode}</span>`;
+    // 1. Adapted columns helper
+    let adaptedHtml = '';
+    if (item.adapted) {
+      const ad = item.adapted;
+      const isTop = (ad.accuracy === maxAdaptedAcc && maxAdaptedAcc > 0);
+      const c0 = ad.class_0 || {};
+      const c1 = ad.class_1 || {};
+      const c0Pr = `${c0.precision !== undefined ? c0.precision.toFixed(1) : '0.0'}% / ${c0.recall !== undefined ? c0.recall.toFixed(1) : '0.0'}%`;
+      const c1Pr = `${c1.precision !== undefined ? c1.precision.toFixed(1) : '0.0'}% / ${c1.recall !== undefined ? c1.recall.toFixed(1) : '0.0'}%`;
+      const cm = ad.confusion_matrix || [[0, 0], [0, 0]];
+      const cmStr = `[${cm[0][0]}, ${cm[0][1]} / ${cm[1][0]}, ${cm[1][1]}]`;
 
-    const c1 = m.class_1 || {};
-    const pr1Str = `${c1.precision !== undefined ? c1.precision.toFixed(1) : '0.0'}% / ${c1.recall !== undefined ? c1.recall.toFixed(1) : '0.0'}%`;
+      adaptedHtml = `
+        <td class="adapted-col"><span class="metric-num ${isTop ? 'metric-highlight' : ''}">${ad.accuracy.toFixed(2)}% ${isTop ? '⭐' : ''}</span></td>
+        <td class="adapted-col"><span class="metric-num">${ad.macro_f1.toFixed(2)}%</span></td>
+        <td class="adapted-col"><span class="metric-num-sub">${c0Pr}</span></td>
+        <td class="adapted-col"><span class="metric-num-sub">${c1Pr}</span></td>
+        <td class="adapted-col"><span class="metric-num ${c1.f1 > 50 ? 'metric-good' : ''}">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
+        <td class="adapted-col"><span class="cm-box">${cmStr}</span></td>
+      `;
+    } else {
+      adaptedHtml = `
+        <td class="adapted-col empty-col">-</td>
+        <td class="adapted-col empty-col">-</td>
+        <td class="adapted-col empty-col">-</td>
+        <td class="adapted-col empty-col">-</td>
+        <td class="adapted-col empty-col">-</td>
+        <td class="adapted-col empty-col">-</td>
+      `;
+    }
 
-    const cm = m.confusion_matrix || [[0, 0], [0, 0]];
-    const cmStr = `[${cm[0][0]}, ${cm[0][1]} / ${cm[1][0]}, ${cm[1][1]}]`;
+    // 2. Cold-Start (Cooldown) columns helper
+    let coldHtml = '';
+    if (item.cold) {
+      const cd = item.cold;
+      const isTop = (cd.accuracy === maxColdAcc && maxColdAcc > 0);
+      const c0 = cd.class_0 || {};
+      const c1 = cd.class_1 || {};
+      const c0Pr = `${c0.precision !== undefined ? c0.precision.toFixed(1) : '0.0'}% / ${c0.recall !== undefined ? c0.recall.toFixed(1) : '0.0'}%`;
+      const c1Pr = `${c1.precision !== undefined ? c1.precision.toFixed(1) : '0.0'}% / ${c1.recall !== undefined ? c1.recall.toFixed(1) : '0.0'}%`;
+      const cm = cd.confusion_matrix || [[0, 0], [0, 0]];
+      const cmStr = `[${cm[0][0]}, ${cm[0][1]} / ${cm[1][0]}, ${cm[1][1]}]`;
+
+      coldHtml = `
+        <td class="cold-col"><span class="metric-num ${isTop ? 'metric-highlight-cold' : ''}">${cd.accuracy.toFixed(2)}% ${isTop ? '✨' : ''}</span></td>
+        <td class="cold-col"><span class="metric-num">${cd.macro_f1.toFixed(2)}%</span></td>
+        <td class="cold-col"><span class="metric-num-sub">${c0Pr}</span></td>
+        <td class="cold-col"><span class="metric-num-sub">${c1Pr}</span></td>
+        <td class="cold-col"><span class="metric-num ${c1.f1 > 50 ? 'metric-good' : ''}">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
+        <td class="cold-col"><span class="cm-box">${cmStr}</span></td>
+      `;
+    } else {
+      coldHtml = `
+        <td class="cold-col empty-col">-</td>
+        <td class="cold-col empty-col">-</td>
+        <td class="cold-col empty-col">-</td>
+        <td class="cold-col empty-col">-</td>
+        <td class="cold-col empty-col">-</td>
+        <td class="cold-col empty-col">-</td>
+      `;
+    }
 
     tr.innerHTML = `
-      <td><strong>${m.test_case}</strong></td>
-      <td>${modelBadge}</td>
-      <td><span class="badge badge-arch">${m.architecture}</span></td>
-      <td>${modeBadge}</td>
-      <td><span class="metric-num ${isTopAcc ? 'metric-highlight' : ''}">${m.accuracy.toFixed(2)}% ${isTopAcc ? '⭐' : ''}</span></td>
-      <td><span class="metric-num ${isTopF1 ? 'metric-highlight' : ''}">${m.macro_f1.toFixed(2)}%</span></td>
-      <td><span class="metric-num">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
-      <td><span class="metric-num">${pr1Str}</span></td>
-      <td><span class="cm-box">${cmStr}</span></td>
+      <td class="th-fixed"><strong>${item.test_case}</strong></td>
+      <td class="th-fixed">${modelBadge}</td>
+      <td class="th-fixed">${archBadge}</td>
+      ${adaptedHtml}
+      ${coldHtml}
     `;
+
     tbody.appendChild(tr);
   });
 }
@@ -398,21 +532,59 @@ function exportResultsCsv() {
     return;
   }
 
-  const headers = ['Test Case', 'Model', 'Architecture', 'Mode', 'Accuracy (%)', 'Macro F1 (%)', 'Class 1 Precision (%)', 'Class 1 Recall (%)', 'Class 1 F1 (%)', 'Confusion Matrix'];
-  const rows = metrics.map(m => {
-    const c1 = m.class_1 || {};
-    const cm = JSON.stringify(m.confusion_matrix || []);
+  // Group into side-by-side rows
+  const grouped = {};
+  metrics.forEach(m => {
+    const key = `${m.test_case}__${m.model}__${m.architecture}`;
+    if (!grouped[key]) {
+      grouped[key] = { test_case: m.test_case, model: m.model, architecture: m.architecture, adapted: null, cold: null };
+    }
+    const mode = (m.mode || '').toLowerCase();
+    if (mode.includes('fast') || mode.includes('adapt')) {
+      grouped[key].adapted = m;
+    } else {
+      grouped[key].cold = m;
+    }
+  });
+
+  const headers = [
+    'Test Case', 'Model', 'Architecture',
+    'Adapted Acc (%)', 'Adapted Macro F1 (%)', 'Adapted C0 Prec (%)', 'Adapted C0 Rec (%)', 'Adapted C1 Prec (%)', 'Adapted C1 Rec (%)', 'Adapted C1 F1 (%)', 'Adapted Confusion Matrix',
+    'Cooldown Acc (%)', 'Cooldown Macro F1 (%)', 'Cooldown C0 Prec (%)', 'Cooldown C0 Rec (%)', 'Cooldown C1 Prec (%)', 'Cooldown C1 Rec (%)', 'Cooldown C1 F1 (%)', 'Cooldown Confusion Matrix'
+  ];
+
+  const rows = Object.values(grouped).map(item => {
+    const ad = item.adapted;
+    const cd = item.cold;
+
+    const adC0 = ad ? (ad.class_0 || {}) : {};
+    const adC1 = ad ? (ad.class_1 || {}) : {};
+    const adCm = ad ? JSON.stringify(ad.confusion_matrix || []) : '""';
+
+    const cdC0 = cd ? (cd.class_0 || {}) : {};
+    const cdC1 = cd ? (cd.class_1 || {}) : {};
+    const cdCm = cd ? JSON.stringify(cd.confusion_matrix || []) : '""';
+
     return [
-      `"${m.test_case}"`,
-      `"${m.model}"`,
-      `"${m.architecture}"`,
-      `"${m.mode}"`,
-      m.accuracy,
-      m.macro_f1,
-      c1.precision || 0,
-      c1.recall || 0,
-      c1.f1 || 0,
-      `"${cm}"`
+      `"${item.test_case}"`,
+      `"${item.model}"`,
+      `"${item.architecture}"`,
+      ad ? ad.accuracy : '',
+      ad ? ad.macro_f1 : '',
+      adC0.precision !== undefined ? adC0.precision : '',
+      adC0.recall !== undefined ? adC0.recall : '',
+      adC1.precision !== undefined ? adC1.precision : '',
+      adC1.recall !== undefined ? adC1.recall : '',
+      adC1.f1 !== undefined ? adC1.f1 : '',
+      `"${adCm}"`,
+      cd ? cd.accuracy : '',
+      cd ? cd.macro_f1 : '',
+      cdC0.precision !== undefined ? cdC0.precision : '',
+      cdC0.recall !== undefined ? cdC0.recall : '',
+      cdC1.precision !== undefined ? cdC1.precision : '',
+      cdC1.recall !== undefined ? cdC1.recall : '',
+      cdC1.f1 !== undefined ? cdC1.f1 : '',
+      `"${cdCm}"`
     ].join(',');
   });
 
@@ -420,11 +592,11 @@ function exportResultsCsv() {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `meta_learning_comparison_${Date.now()}.csv`);
+  link.setAttribute("download", `meta_learning_side_by_side_${Date.now()}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast('CSV exported successfully!', 'success');
+  showToast('Side-by-side CSV exported successfully!', 'success');
 }
 
 function exportResultsJson() {
@@ -447,36 +619,55 @@ function exportResultsJson() {
 // ----------------------------------------------------------------------
 // 5. Configuration (config.json) Management
 // ----------------------------------------------------------------------
-// Factory baseline default values (original system baseline)
+// Factory baseline default values (original system baseline with decoupled stages)
 const FACTORY_DEFAULT_CONFIG = {
-  dataset: {
+  constant: {
+    steps_per_day: 144,
+    note: "1 day = 144 time steps (24 hours at 10-minute intervals). Ground truth constant."
+  },
+  preprocessing: {
     raw_dir: "tabular/data/raw",
     output_dir: "tabular/data/processed",
     primary_csv: "dataset_prepro_routine_generated.csv",
-    steps_per_day: 144,
-    seed: 42
-  },
-  meta_training_split: {
-    train_frac: 0.70,
+    seed: 42,
+    train_frac: 0.85,
     val_frac: 0.15,
-    test_frac: 0.15,
-    support_days: 1,
-    k_shot: 144
+    test_frac: 0,
+    support_days: 1
   },
-  test_cases: {
-    support_days: 1,
-    k_shot: 144
-  },
-  training_hyperparameters: {
+  meta_training: {
+    device: "cpu",
     num_epochs: 20,
     num_episodes_per_epoch: 1000,
     minibatch: 5,
     minibatch_print: 250,
     meta_lr: 0.001,
-    first_order: true,
-    num_inner_updates: 5,
     inner_lr: 0.01,
+    num_inner_updates: 5,
+    first_order: true,
+    num_models: 4,
     KL_weight: 0.000001,
+    focal_loss: {
+      alpha: 0.25,
+      gamma: 2.0
+    }
+  },
+  fast_adaptation_eval: {
+    device: "cpu",
+    support_days: 1,
+    inner_lr: 0.01,
+    num_inner_updates: 5,
+    num_models: 4,
+    KL_weight: 0.000001,
+    first_order: true,
+    focal_loss: {
+      alpha: 0.25,
+      gamma: 2.0
+    }
+  },
+  cold_start_eval: {
+    device: "cpu",
+    support_days: 1,
     num_models: 4,
     focal_loss: {
       alpha: 0.25,
@@ -497,127 +688,202 @@ async function loadConfig() {
 }
 
 function populateConfigForm(cfg) {
-  const d = cfg.dataset || {};
-  const s = cfg.meta_training_split || {};
-  const tc = cfg.test_cases || {};
-  const h = cfg.training_hyperparameters || {};
-  const f = h.focal_loss || {};
+  // 1. Preprocessing
+  const p = cfg.preprocessing || cfg.dataset || {};
+  const split = cfg.meta_training_split || {};
+  document.getElementById('cfgPreproPrimaryCsv').value = p.primary_csv || 'dataset_prepro_routine_generated.csv';
+  document.getElementById('cfgPreproSeed').value = p.seed !== undefined ? p.seed : 42;
+  document.getElementById('cfgPreproSupportDays').value = p.support_days !== undefined ? p.support_days : (split.support_days !== undefined ? split.support_days : 1);
+  document.getElementById('cfgPreproTrainFrac').value = p.train_frac !== undefined ? p.train_frac : (split.train_frac !== undefined ? split.train_frac : 0.85);
+  document.getElementById('cfgPreproValFrac').value = p.val_frac !== undefined ? p.val_frac : (split.val_frac !== undefined ? split.val_frac : 0.15);
+  document.getElementById('cfgPreproTestFrac').value = p.test_frac !== undefined ? p.test_frac : (split.test_frac !== undefined ? split.test_frac : 0);
 
-  document.getElementById('cfgPrimaryCsv').value = d.primary_csv || 'dataset_prepro_routine_generated.csv';
-  document.getElementById('cfgStepsPerDay').value = d.steps_per_day !== undefined ? d.steps_per_day : 144;
-  document.getElementById('cfgSeed').value = d.seed !== undefined ? d.seed : 42;
+  // 2. Meta-Training
+  const tr = cfg.meta_training || cfg.training_hyperparameters || {};
+  const trFocal = tr.focal_loss || {};
+  const elTrainDev = document.getElementById('cfgTrainDevice');
+  if (elTrainDev) elTrainDev.value = tr.device || 'cuda';
 
-  document.getElementById('cfgTrainFrac').value = s.train_frac !== undefined ? s.train_frac : 0.70;
-  document.getElementById('cfgValFrac').value = s.val_frac !== undefined ? s.val_frac : 0.15;
-  document.getElementById('cfgTestFrac').value = s.test_frac !== undefined ? s.test_frac : 0.15;
-  document.getElementById('cfgSupportDays').value = s.support_days !== undefined ? s.support_days : 1;
-  document.getElementById('cfgKShot').value = s.k_shot !== undefined ? s.k_shot : 144;
+  document.getElementById('cfgTrainNumEpochs').value = tr.num_epochs !== undefined ? tr.num_epochs : 20;
+  document.getElementById('cfgTrainEpsPerEpoch').value = tr.num_episodes_per_epoch !== undefined ? tr.num_episodes_per_epoch : 1000;
+  document.getElementById('cfgTrainMinibatch').value = tr.minibatch !== undefined ? tr.minibatch : 5;
+  document.getElementById('cfgTrainMinibatchPrint').value = tr.minibatch_print !== undefined ? tr.minibatch_print : 250;
+  document.getElementById('cfgTrainMetaLr').value = tr.meta_lr !== undefined ? tr.meta_lr : 0.001;
+  document.getElementById('cfgTrainInnerUpdates').value = tr.num_inner_updates !== undefined ? tr.num_inner_updates : 5;
+  document.getElementById('cfgTrainInnerLr').value = tr.inner_lr !== undefined ? tr.inner_lr : 0.01;
+  document.getElementById('cfgTrainNumModels').value = tr.num_models !== undefined ? tr.num_models : 4;
+  document.getElementById('cfgTrainKlWeight').value = tr.KL_weight !== undefined ? tr.KL_weight : 0.000001;
+  document.getElementById('cfgTrainFocalAlpha').value = trFocal.alpha !== undefined ? trFocal.alpha : 0.25;
+  document.getElementById('cfgTrainFocalGamma').value = trFocal.gamma !== undefined ? trFocal.gamma : 2.0;
 
-  document.getElementById('cfgTcSupportDays').value = tc.support_days !== undefined ? tc.support_days : 1;
-  document.getElementById('cfgTcKShot').value = tc.k_shot !== undefined ? tc.k_shot : 144;
-
-  document.getElementById('cfgNumEpochs').value = h.num_epochs !== undefined ? h.num_epochs : 20;
-  document.getElementById('cfgEpsPerEpoch').value = h.num_episodes_per_epoch !== undefined ? h.num_episodes_per_epoch : 1000;
-  document.getElementById('cfgMinibatch').value = h.minibatch !== undefined ? h.minibatch : 5;
-  document.getElementById('cfgMinibatchPrint').value = h.minibatch_print !== undefined ? h.minibatch_print : 250;
-  document.getElementById('cfgMetaLr').value = h.meta_lr !== undefined ? h.meta_lr : 0.001;
-
-  const chkFirstOrder = document.getElementById('cfgFirstOrder');
-  if (chkFirstOrder) {
-    chkFirstOrder.checked = (h.first_order !== false);
-    updateFirstOrderLabel();
+  const chkTrainFirstOrder = document.getElementById('cfgTrainFirstOrder');
+  if (chkTrainFirstOrder) {
+    chkTrainFirstOrder.checked = (tr.first_order !== false);
+    updateTrainFirstOrderLabel();
   }
 
-  document.getElementById('cfgInnerUpdates').value = h.num_inner_updates !== undefined ? h.num_inner_updates : 5;
-  document.getElementById('cfgInnerLr').value = h.inner_lr !== undefined ? h.inner_lr : 0.01;
+  // 3. Fast Adaptation Eval
+  const fa = cfg.fast_adaptation_eval || cfg.test_cases || {};
+  const faFocal = fa.focal_loss || trFocal || {};
+  const elAdaptDev = document.getElementById('cfgAdaptDevice');
+  if (elAdaptDev) elAdaptDev.value = fa.device || 'cuda';
 
-  document.getElementById('cfgNumModels').value = h.num_models !== undefined ? h.num_models : 4;
-  document.getElementById('cfgKlWeight').value = h.KL_weight !== undefined ? h.KL_weight : 0.000001;
+  document.getElementById('cfgAdaptSupportDays').value = fa.support_days !== undefined ? fa.support_days : 1;
+  document.getElementById('cfgAdaptInnerUpdates').value = fa.num_inner_updates !== undefined ? fa.num_inner_updates : (tr.num_inner_updates || 5);
+  document.getElementById('cfgAdaptInnerLr').value = fa.inner_lr !== undefined ? fa.inner_lr : (tr.inner_lr || 0.01);
+  document.getElementById('cfgAdaptNumModels').value = fa.num_models !== undefined ? fa.num_models : (tr.num_models || 4);
+  const elAdaptKl = document.getElementById('cfgAdaptKlWeight');
+  if (elAdaptKl) elAdaptKl.value = fa.KL_weight !== undefined ? fa.KL_weight : (tr.KL_weight !== undefined ? tr.KL_weight : 0.000001);
+  document.getElementById('cfgAdaptFocalAlpha').value = faFocal.alpha !== undefined ? faFocal.alpha : 0.25;
+  document.getElementById('cfgAdaptFocalGamma').value = faFocal.gamma !== undefined ? faFocal.gamma : 2.0;
 
-  document.getElementById('cfgFocalAlpha').value = f.alpha !== undefined ? f.alpha : 0.25;
-  document.getElementById('cfgFocalGamma').value = f.gamma !== undefined ? f.gamma : 2.0;
+  const chkAdaptFirstOrder = document.getElementById('cfgAdaptFirstOrder');
+  if (chkAdaptFirstOrder) {
+    chkAdaptFirstOrder.checked = (fa.first_order !== false);
+    updateAdaptFirstOrderLabel();
+  }
+
+  // 4. Cold-Start Eval
+  const cs = cfg.cold_start_eval || {};
+  const csFocal = cs.focal_loss || trFocal || {};
+  const elColdDev = document.getElementById('cfgColdDevice');
+  if (elColdDev) elColdDev.value = cs.device || 'cuda';
+
+  document.getElementById('cfgColdSupportDays').value = cs.support_days !== undefined ? cs.support_days : 1;
+  document.getElementById('cfgColdNumModels').value = cs.num_models !== undefined ? cs.num_models : (tr.num_models || 4);
+  document.getElementById('cfgColdFocalAlpha').value = csFocal.alpha !== undefined ? csFocal.alpha : 0.25;
+  document.getElementById('cfgColdFocalGamma').value = csFocal.gamma !== undefined ? csFocal.gamma : 2.0;
 
   updateSplitVisualizer();
 }
 
-function updateFirstOrderLabel() {
-  const chk = document.getElementById('cfgFirstOrder');
-  const lbl = document.getElementById('lblFirstOrder');
+function updateTrainFirstOrderLabel() {
+  const chk = document.getElementById('cfgTrainFirstOrder');
+  const lbl = document.getElementById('lblTrainFirstOrder');
   if (chk && lbl) {
-    lbl.textContent = chk.checked ? 'First-Order Approximation Enabled' : 'Full Second-Order Derivatives (Slower)';
+    lbl.textContent = chk.checked ? 'Enabled' : 'Full Hessian (Slower)';
   }
 }
 
+function updateAdaptFirstOrderLabel() {
+  const chk = document.getElementById('cfgAdaptFirstOrder');
+  const lbl = document.getElementById('lblAdaptFirstOrder');
+  if (chk && lbl) {
+    lbl.textContent = chk.checked ? 'Enabled' : 'Full Hessian';
+  }
+}
+
+function getNumberVal(id, defaultVal) {
+  const el = document.getElementById(id);
+  if (!el || el.value === '' || el.value === null) return defaultVal;
+  const num = Number(el.value);
+  return isNaN(num) ? defaultVal : num;
+}
+
 function updateSplitVisualizer() {
-  const train = parseFloat(document.getElementById('cfgTrainFrac').value) || 0.70;
-  const val = parseFloat(document.getElementById('cfgValFrac').value) || 0.15;
-  const test = parseFloat(document.getElementById('cfgTestFrac').value) || 0.15;
+  const train = getNumberVal('cfgPreproTrainFrac', 0.85);
+  const val = getNumberVal('cfgPreproValFrac', 0.15);
+  const test = getNumberVal('cfgPreproTestFrac', 0.0);
 
   const total = train + val + test;
-  const pTrain = Math.round((train / total) * 100);
-  const pVal = Math.round((val / total) * 100);
-  const pTest = 100 - pTrain - pVal;
-
   const barTrain = document.getElementById('splitBarTrain');
   const barVal = document.getElementById('splitBarVal');
   const barTest = document.getElementById('splitBarTest');
 
-  if (barTrain && barVal && barTest) {
-    barTrain.style.width = `${pTrain}%`;
-    barTrain.textContent = `Train ${pTrain}%`;
+  if (!barTrain || !barVal || !barTest) return;
 
-    barVal.style.width = `${pVal}%`;
-    barVal.textContent = `Val ${pVal}%`;
-
-    barTest.style.width = `${pTest}%`;
-    barTest.textContent = `Test ${pTest}%`;
+  if (total <= 0) {
+    barTrain.style.width = '0%';
+    barTrain.textContent = '0%';
+    barVal.style.width = '0%';
+    barVal.textContent = '0%';
+    barTest.style.width = '0%';
+    barTest.textContent = '0%';
+    return;
   }
+
+  const pTrain = Math.round((train / total) * 100);
+  const pVal = Math.round((val / total) * 100);
+  const pTest = Math.max(0, 100 - pTrain - pVal);
+
+  barTrain.style.width = `${pTrain}%`;
+  barTrain.textContent = pTrain > 0 ? `Train ${pTrain}%` : '';
+
+  barVal.style.width = `${pVal}%`;
+  barVal.textContent = pVal > 0 ? `Val ${pVal}%` : '';
+
+  barTest.style.width = `${pTest}%`;
+  barTest.textContent = pTest > 0 ? `Test ${pTest}%` : '';
 }
 
-['cfgTrainFrac', 'cfgValFrac', 'cfgTestFrac'].forEach(id => {
+['cfgPreproTrainFrac', 'cfgPreproValFrac', 'cfgPreproTestFrac'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', updateSplitVisualizer);
 });
 
-const chkFirstOrderEl = document.getElementById('cfgFirstOrder');
-if (chkFirstOrderEl) {
-  chkFirstOrderEl.addEventListener('change', updateFirstOrderLabel);
+const chkTrainFirstOrderEl = document.getElementById('cfgTrainFirstOrder');
+if (chkTrainFirstOrderEl) {
+  chkTrainFirstOrderEl.addEventListener('change', updateTrainFirstOrderLabel);
+}
+
+const chkAdaptFirstOrderEl = document.getElementById('cfgAdaptFirstOrder');
+if (chkAdaptFirstOrderEl) {
+  chkAdaptFirstOrderEl.addEventListener('change', updateAdaptFirstOrderLabel);
 }
 
 async function saveConfig() {
   configData = {
-    dataset: {
+    constant: {
+      steps_per_day: 144,
+      note: "1 day = 144 time steps (24 hours at 10-minute intervals). Ground truth constant."
+    },
+    preprocessing: {
       raw_dir: "tabular/data/raw",
       output_dir: "tabular/data/processed",
-      primary_csv: document.getElementById('cfgPrimaryCsv').value || 'dataset_prepro_routine_generated.csv',
-      steps_per_day: parseInt(document.getElementById('cfgStepsPerDay').value) || 144,
-      seed: parseInt(document.getElementById('cfgSeed').value) || 42
+      primary_csv: document.getElementById('cfgPreproPrimaryCsv').value || 'dataset_prepro_routine_generated.csv',
+      seed: getNumberVal('cfgPreproSeed', 42),
+      train_frac: getNumberVal('cfgPreproTrainFrac', 0.85),
+      val_frac: getNumberVal('cfgPreproValFrac', 0.15),
+      test_frac: getNumberVal('cfgPreproTestFrac', 0),
+      support_days: getNumberVal('cfgPreproSupportDays', 1)
     },
-    meta_training_split: {
-      train_frac: parseFloat(document.getElementById('cfgTrainFrac').value) || 0.70,
-      val_frac: parseFloat(document.getElementById('cfgValFrac').value) || 0.15,
-      test_frac: parseFloat(document.getElementById('cfgTestFrac').value) || 0.15,
-      support_days: parseInt(document.getElementById('cfgSupportDays').value) || 1,
-      k_shot: parseInt(document.getElementById('cfgKShot').value) || 144
-    },
-    test_cases: {
-      support_days: parseInt(document.getElementById('cfgTcSupportDays').value) || 1,
-      k_shot: parseInt(document.getElementById('cfgTcKShot').value) || 144
-    },
-    training_hyperparameters: {
-      num_epochs: parseInt(document.getElementById('cfgNumEpochs').value) || 20,
-      num_episodes_per_epoch: parseInt(document.getElementById('cfgEpsPerEpoch').value) || 1000,
-      minibatch: parseInt(document.getElementById('cfgMinibatch').value) || 5,
-      minibatch_print: parseInt(document.getElementById('cfgMinibatchPrint').value) || 250,
-      meta_lr: parseFloat(document.getElementById('cfgMetaLr').value) || 0.001,
-      first_order: document.getElementById('cfgFirstOrder') ? document.getElementById('cfgFirstOrder').checked : true,
-      num_inner_updates: parseInt(document.getElementById('cfgInnerUpdates').value) || 5,
-      inner_lr: parseFloat(document.getElementById('cfgInnerLr').value) || 0.01,
-      KL_weight: parseFloat(document.getElementById('cfgKlWeight').value) || 0.000001,
-      num_models: parseInt(document.getElementById('cfgNumModels').value) || 4,
+    meta_training: {
+      device: document.getElementById('cfgTrainDevice') ? document.getElementById('cfgTrainDevice').value : "cuda",
+      num_epochs: getNumberVal('cfgTrainNumEpochs', 20),
+      num_episodes_per_epoch: getNumberVal('cfgTrainEpsPerEpoch', 1000),
+      minibatch: getNumberVal('cfgTrainMinibatch', 5),
+      minibatch_print: getNumberVal('cfgTrainMinibatchPrint', 250),
+      meta_lr: getNumberVal('cfgTrainMetaLr', 0.001),
+      inner_lr: getNumberVal('cfgTrainInnerLr', 0.01),
+      num_inner_updates: getNumberVal('cfgTrainInnerUpdates', 5),
+      first_order: document.getElementById('cfgTrainFirstOrder') ? document.getElementById('cfgTrainFirstOrder').checked : true,
+      num_models: getNumberVal('cfgTrainNumModels', 4),
+      KL_weight: getNumberVal('cfgTrainKlWeight', 0.000001),
       focal_loss: {
-        alpha: parseFloat(document.getElementById('cfgFocalAlpha').value) || 0.25,
-        gamma: parseFloat(document.getElementById('cfgFocalGamma').value) || 2.0
+        alpha: getNumberVal('cfgTrainFocalAlpha', 0.25),
+        gamma: getNumberVal('cfgTrainFocalGamma', 2.0)
+      }
+    },
+    fast_adaptation_eval: {
+      device: document.getElementById('cfgAdaptDevice') ? document.getElementById('cfgAdaptDevice').value : "cuda",
+      support_days: getNumberVal('cfgAdaptSupportDays', 1),
+      inner_lr: getNumberVal('cfgAdaptInnerLr', 0.01),
+      num_inner_updates: getNumberVal('cfgAdaptInnerUpdates', 5),
+      num_models: getNumberVal('cfgAdaptNumModels', 4),
+      KL_weight: getNumberVal('cfgAdaptKlWeight', 0.000001),
+      first_order: document.getElementById('cfgAdaptFirstOrder') ? document.getElementById('cfgAdaptFirstOrder').checked : true,
+      focal_loss: {
+        alpha: getNumberVal('cfgAdaptFocalAlpha', 0.25),
+        gamma: getNumberVal('cfgAdaptFocalGamma', 2.0)
+      }
+    },
+    cold_start_eval: {
+      device: document.getElementById('cfgColdDevice') ? document.getElementById('cfgColdDevice').value : "cuda",
+      support_days: getNumberVal('cfgColdSupportDays', 1),
+      num_models: getNumberVal('cfgColdNumModels', 4),
+      focal_loss: {
+        alpha: getNumberVal('cfgColdFocalAlpha', 0.25),
+        gamma: getNumberVal('cfgColdFocalGamma', 2.0)
       }
     }
   };
@@ -629,7 +895,7 @@ async function saveConfig() {
       body: JSON.stringify(configData)
     });
     const data = await res.json();
-    showToast('Saved and applied configuration to config.json!', 'success');
+    showToast('Saved and applied decoupled configuration to config.json!', 'success');
   } catch (err) {
     showToast(`Failed to save config: ${err.message}`, 'error');
   }
@@ -650,7 +916,7 @@ async function resetToFactoryDefaults() {
       body: JSON.stringify(configData)
     });
     const data = await res.json();
-    showToast('Reset all hyperparameters to original baseline defaults!', 'success');
+    showToast('Reset all parameters to factory defaults in config.json!', 'success');
   } catch (err) {
     showToast(`Failed to reset config: ${err.message}`, 'error');
   }

@@ -9,6 +9,7 @@ import os
 import random
 import sys
 
+import json
 import abc
 
 # --------------------------------------------------
@@ -154,6 +155,7 @@ class MLBaseClass(object):
         try:
             for epoch_id in range(self.config['resume_epoch'], self.config['resume_epoch'] + self.config['num_epochs'], 1):
                 loss_monitor = 0.
+                global_step = (epoch_id + 1) * self.config['num_episodes_per_epoch'] // max(1, self.config['minibatch_print'])
                 for eps_count, eps_data in enumerate(train_dataloader):
 
                     if (eps_count >= self.config['num_episodes_per_epoch']):
@@ -226,13 +228,47 @@ class MLBaseClass(object):
                     tb_writer.add_scalar(tag="Val_Accuracy", scalar_value=val_acc_mean, global_step=global_step)
                     model["f_base_net"].train()
 
-                # save model
+                # save model with validation accuracy metadata
                 checkpoint = {
+                    "epoch": epoch_id + 1,
                     "hyper_net_state_dict": model["hyper_net"].state_dict(),
-                    "opt_state_dict": model["optimizer"].state_dict()
+                    "opt_state_dict": model["optimizer"].state_dict(),
+                    "val_acc": val_acc_mean if val_dataloader is not None else None,
+                    "val_nll": val_nll_mean if val_dataloader is not None else None
                 }
                 checkpoint_path = os.path.join(self.config['logdir'], 'Epoch_{0:d}.pt'.format(epoch_id + 1))
                 torch.save(obj=checkpoint, f=checkpoint_path)
+
+                # Maintain training history & best checkpoint
+                history_file = os.path.join(self.config['logdir'], 'training_history.json')
+                history = {"epochs": [], "best_checkpoint": None}
+                if os.path.exists(history_file):
+                    try:
+                        with open(history_file, 'r', encoding='utf-8') as hf:
+                            history = json.load(hf)
+                    except Exception:
+                        history = {"epochs": [], "best_checkpoint": None}
+
+                epoch_record = {
+                    "epoch": epoch_id + 1,
+                    "val_acc": val_acc_mean,
+                    "val_nll": val_nll_mean,
+                    "checkpoint_path": checkpoint_path
+                }
+                history["epochs"].append(epoch_record)
+
+                curr_best = history.get("best_checkpoint")
+                if curr_best is None or (val_acc_mean is not None and val_acc_mean >= curr_best.get("val_acc", -1)):
+                    history["best_checkpoint"] = epoch_record
+                    # Save best model copy
+                    best_model_path = os.path.join(self.config['logdir'], 'best_model.pt')
+                    torch.save(obj=checkpoint, f=best_model_path)
+
+                try:
+                    with open(history_file, 'w', encoding='utf-8') as hf:
+                        json.dump(history, hf, indent=2)
+                except Exception:
+                    pass
                 
                 # --- Clean Console Logging ---
                 if val_dataloader is not None:
@@ -283,7 +319,11 @@ class MLBaseClass(object):
         """
         print("Evaluation is started.\n")
 
-        model = self.load_model(resume_epoch=self.config["resume_epoch"], hyper_net_class=self.hyper_net_class, eps_dataloader=eps_dataloader)
+        epoch = self.config.get("resume_epoch", 0)
+        if not epoch or epoch <= 0:
+            epoch = self.config.get("num_epochs", 1)
+
+        model = self.load_model(resume_epoch=epoch, hyper_net_class=self.hyper_net_class, eps_dataloader=eps_dataloader)
 
         loss, accuracy = self.evaluate(num_eps=num_eps, eps_dataloader=eps_dataloader, model=model)
 

@@ -63,6 +63,9 @@ class Maml(MLBaseClass):
         else:
             raise NotImplementedError('Network architecture is unknown. Please implement it in the CommonModels.py.')
 
+        # move to device before dummy forward to ensure LazyLinear initializes on the correct device
+        base_net.to(self.config['device'])
+
         # ---------------------------------------------------------------
         # run a dummy task to initialize lazy modules defined in base_net
         # ---------------------------------------------------------------
@@ -70,7 +73,7 @@ class Maml(MLBaseClass):
             # split data into train and validation
             split_data = self.config['train_val_split_function'](eps_data=eps_data, k_shot=self.config['k_shot'])
             # run to initialize lazy modules
-            base_net.forward(split_data['x_t'])
+            base_net.forward(split_data['x_t'].to(self.config['device']))
             break
 
         params = torch.nn.utils.parameters_to_vector(parameters=base_net.parameters())
@@ -78,7 +81,7 @@ class Maml(MLBaseClass):
 
         model["hyper_net"] = kwargs["hyper_net_class"](base_net=base_net, num_models=self.config["num_models"])
 
-        # move to device
+        # move hyper_net to device
         base_net.to(self.config['device'])
         model["hyper_net"].to(self.config['device'])
 

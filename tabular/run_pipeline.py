@@ -20,13 +20,32 @@ import argparse
 import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 
 REPO_ROOT = str(Path(__file__).resolve().parents[1])
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 RESULTS_JSON_PATH = os.path.join(REPO_ROOT, "tabular", "outputs", "pipeline_results.json")
+
+
+def get_python_executable():
+    """Returns the python executable containing torch, checking virtualenvs if needed."""
+    try:
+        import torch
+        return sys.executable
+    except ImportError:
+        pass
+
+    candidates = [
+        os.path.expanduser(r"~\.conda\envs\few_shot_meta_learning\python.exe"),
+        os.path.expanduser(r"~\anaconda3\envs\few_shot_meta_learning\python.exe"),
+        os.path.expanduser(r"~\miniconda3\envs\few_shot_meta_learning\python.exe"),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return sys.executable
 
 
 def load_pipeline_config(config_path: str) -> Dict[str, Any]:
@@ -50,31 +69,58 @@ def format_duration(seconds: float) -> str:
 
 
 def print_comparison_table(metrics: List[Dict[str, Any]]):
-    """Prints a structured ASCII comparison table across all test cases and models."""
+    """Prints a structured ASCII side-by-side comparison table (Adapted vs. Cooldown) across test cases."""
     if not metrics:
         return
 
     # Group by test case
     test_cases = sorted(list(set(m["test_case"] for m in metrics)))
 
-    print("\n" + "=" * 105)
-    print(" " * 35 + "MULTI-MODEL EVALUATION COMPARISON TABLE")
-    print("=" * 105)
+    print("\n" + "=" * 148)
+    print(" " * 52 + "MULTI-MODEL EVALUATION COMPARISON TABLE")
+    print("=" * 148)
 
     for tc in test_cases:
         tc_metrics = [m for m in metrics if m["test_case"] == tc]
         print(f"\n[+] TEST CASE: {tc}")
-        print("-" * 105)
-        print(f"{'Model':<10} | {'Architecture':<20} | {'Mode':<16} | {'Acc (%)':<9} | {'Macro F1':<9} | {'Class 1 F1':<11} | {'Class 1 Prec/Rec':<18}")
-        print("-" * 105)
+        print("-" * 148)
+        print(f"{'Model':<9} | {'Architecture':<18} | {'------- ADAPTED (FAST ADAPTATION) -------':<55} | {'------ COOLDOWN (COLD START / ZERO SHOT) ------':<55}")
+        print(f"{'':<9} | {'':<18} | {'Acc':<7} | {'MacroF1':<8} | {'C0 Prec/Rec':<16} | {'C1 Prec/Rec':<16} | {'Acc':<7} | {'MacroF1':<8} | {'C0 Prec/Rec':<16} | {'C1 Prec/Rec':<16}")
+        print("-" * 148)
 
+        # Pair by (model, architecture)
+        pairs: Dict[Tuple[str, str], Dict[str, Optional[Dict[str, Any]]]] = {}
         for m in tc_metrics:
-            c1 = m.get("class_1", {})
-            p_r_str = f"{c1.get('precision', 0.0):.1f}% / {c1.get('recall', 0.0):.1f}%"
-            print(f"{m.get('model', ''):<10} | {m.get('architecture', ''):<20} | {m.get('mode', ''):<16} | {m.get('accuracy', 0.0):>6.2f}%   | {m.get('macro_f1', 0.0):>6.2f}%   | {c1.get('f1', 0.0):>7.2f}%    | {p_r_str:<18}")
+            key = (m.get("model", ""), m.get("architecture", ""))
+            if key not in pairs:
+                pairs[key] = {"adapted": None, "cold": None}
+            mode = m.get("mode", "").lower()
+            if "fast" in mode or "adapt" in mode:
+                pairs[key]["adapted"] = m
+            else:
+                pairs[key]["cold"] = m
 
-        print("-" * 105)
-    print("=" * 105 + "\n")
+        for (model_name, arch_name), data in sorted(pairs.items()):
+            ad = data["adapted"]
+            cd = data["cold"]
+
+            def fmt_cols(m_dict: Optional[Dict[str, Any]]) -> str:
+                if not m_dict:
+                    return f"{'-':<7} | {'-':<8} | {'-':<16} | {'-':<16}"
+                acc = f"{m_dict.get('accuracy', 0.0):.1f}%"
+                mf1 = f"{m_dict.get('macro_f1', 0.0):.1f}%"
+                c0 = m_dict.get("class_0", {})
+                c1 = m_dict.get("class_1", {})
+                c0_pr = f"{c0.get('precision', 0.0):.1f}% / {c0.get('recall', 0.0):.1f}%"
+                c1_pr = f"{c1.get('precision', 0.0):.1f}% / {c1.get('recall', 0.0):.1f}%"
+                return f"{acc:<7} | {mf1:<8} | {c0_pr:<16} | {c1_pr:<16}"
+
+            ad_str = fmt_cols(ad)
+            cd_str = fmt_cols(cd)
+            print(f"{model_name:<9} | {arch_name:<18} | {ad_str} | {cd_str}")
+
+        print("-" * 148)
+    print("=" * 148 + "\n")
 
 
 def run_pipeline(
@@ -187,7 +233,8 @@ def run_pipeline(
         print(f"Timestamp : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("=" * 80 + "\n")
 
-        cmd = [sys.executable, "-u", script_full_path]
+        py_exec = get_python_executable()
+        cmd = [py_exec, "-u", script_full_path]
         step_start = time.time()
         success = False
 

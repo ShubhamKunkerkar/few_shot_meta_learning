@@ -279,20 +279,25 @@ def main():
         with open(args.config, "r") as f:
             cfg = json.load(f)
 
-    dataset_cfg = cfg.get("dataset", {})
+    prepro_cfg = cfg.get("preprocessing", cfg.get("dataset", {}))
     meta_split_cfg = cfg.get("meta_training_split", {})
-    test_cases_cfg = cfg.get("test_cases", {})
+    test_cases_cfg = cfg.get("fast_adaptation_eval", cfg.get("test_cases", {}))
 
-    # 2. Resolve Parameters (CLI args override JSON config, which overrides defaults)
-    raw_dir = args.raw_dir or dataset_cfg.get("raw_dir", "tabular/data/raw")
-    output_dir = args.output_dir or dataset_cfg.get("output_dir", "tabular/data/processed")
-    steps_per_day = dataset_cfg.get("steps_per_day", 144)
-    seed = args.seed if args.seed is not None else dataset_cfg.get("seed", 42)
+    # 2. Resolve Parameters (1 Day = 144 steps ground truth constant)
+    STEPS_PER_DAY = 144
+    raw_dir = args.raw_dir or prepro_cfg.get("raw_dir", "tabular/data/raw")
+    output_dir = args.output_dir or prepro_cfg.get("output_dir", "tabular/data/processed")
+    seed = args.seed if args.seed is not None else prepro_cfg.get("seed", 42)
 
-    val_frac = args.val_frac if args.val_frac is not None else meta_split_cfg.get("val_frac", 0.15)
-    test_frac = args.test_frac if args.test_frac is not None else meta_split_cfg.get("test_frac", 0.15)
-    default_support_days = args.support_days if args.support_days is not None else meta_split_cfg.get("support_days", 1)
-    default_k_shot = args.k_shot if args.k_shot is not None else meta_split_cfg.get("k_shot", default_support_days * steps_per_day)
+    val_frac = args.val_frac if args.val_frac is not None else prepro_cfg.get("val_frac", meta_split_cfg.get("val_frac", 0.15))
+    test_frac = args.test_frac if args.test_frac is not None else prepro_cfg.get("test_frac", meta_split_cfg.get("test_frac", 0.15))
+    
+    primary_support_days = args.support_days if args.support_days is not None else prepro_cfg.get("support_days", 1)
+    primary_support_steps = primary_support_days * STEPS_PER_DAY
+
+    # Test cases support days (for fast adaptation split)
+    tc_support_days = test_cases_cfg.get("support_days", 1)
+    tc_support_steps = tc_support_days * STEPS_PER_DAY
 
     # Reproducibility
     random.seed(seed)
@@ -314,17 +319,14 @@ def main():
     tsls_cap = DEFAULT_TSLS_CAP
 
     for idx, f in enumerate(csv_files):
-        csv_name = Path(f).name
         is_primary = (idx == 0)
 
-        # Check for dataset-specific support/k_shot configuration
         if is_primary:
-            support_days = default_support_days
-            support_steps = default_k_shot
+            support_days = primary_support_days
+            support_steps = primary_support_steps
         else:
-            # Apply uniform global test_cases configuration to all test cases
-            support_days = test_cases_cfg.get("support_days", default_support_days)
-            support_steps = test_cases_cfg.get("k_shot", support_days * steps_per_day)
+            support_days = tc_support_days
+            support_steps = tc_support_steps
 
         res = process_csv(
             csv_path=f,

@@ -132,11 +132,21 @@
             </div>
 
             <div class="filter-group">
-              <span class="filter-label">Evaluation Mode:</span>
-              <div class="filter-pills" id="modeFilterPills">
-                <button class="pill active" data-filter-mode="all">All Modes</button>
-                <button class="pill" data-filter-mode="Fast Adaptation">Fast Adaptation (Adapted)</button>
-                <button class="pill" data-filter-mode="Cold Start">Cold Start (Zero-Shot)</button>
+              <span class="filter-label">Meta Technique:</span>
+              <div class="filter-pills" id="modelFilterPills">
+                <button class="pill active" data-filter-model="all">All Techniques</button>
+                <button class="pill" data-filter-model="MAML">MAML</button>
+                <button class="pill" data-filter-model="PLATIPUS">PLATIPUS</button>
+                <button class="pill" data-filter-model="VAMPIRE">VAMPIRE</button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <span class="filter-label">Architecture:</span>
+              <div class="filter-pills" id="archFilterPills">
+                <button class="pill active" data-filter-arch="all">All Architectures</button>
+                <button class="pill" data-filter-arch="FcNet">FcNet</button>
+                <button class="pill" data-filter-arch="LogisticRegression">Logistic Regression</button>
               </div>
             </div>
           </div>
@@ -145,21 +155,37 @@
           <div class="table-container">
             <table class="comparison-table" id="metricsTable">
               <thead>
-                <tr>
-                  <th>Test Case</th>
-                  <th>Model</th>
-                  <th>Architecture</th>
-                  <th>Mode</th>
-                  <th>Accuracy</th>
-                  <th>Macro F1</th>
-                  <th>Class 1 F1 (Smoking)</th>
-                  <th>Class 1 Precision / Recall</th>
-                  <th>Confusion Matrix [TN, FP / FN, TP]</th>
+                <tr class="header-group-row">
+                  <th rowspan="2" class="th-fixed">Test Case</th>
+                  <th rowspan="2" class="th-fixed">Model</th>
+                  <th rowspan="2" class="th-fixed">Architecture</th>
+                  <th colspan="6" class="th-group group-adapted">
+                    <div class="group-title"><span>⚡ Adapted</span> <span class="group-sub">(Fast Adaptation / Support-Tuned)</span></div>
+                  </th>
+                  <th colspan="6" class="th-group group-coldstart">
+                    <div class="group-title"><span>❄️ Cooldown</span> <span class="group-sub">(Cold-Start / Zero-Shot Meta Prior)</span></div>
+                  </th>
+                </tr>
+                <tr class="header-sub-row">
+                  <!-- Adapted sub-headers -->
+                  <th class="sub-col adapted-col">Acc</th>
+                  <th class="sub-col adapted-col">Macro F1</th>
+                  <th class="sub-col adapted-col">C0 Prec / Rec</th>
+                  <th class="sub-col adapted-col">C1 Prec / Rec</th>
+                  <th class="sub-col adapted-col">C1 F1</th>
+                  <th class="sub-col adapted-col">Conf Matrix [TN,FP/FN,TP]</th>
+                  <!-- Cold Start sub-headers -->
+                  <th class="sub-col cold-col">Acc</th>
+                  <th class="sub-col cold-col">Macro F1</th>
+                  <th class="sub-col cold-col">C0 Prec / Rec</th>
+                  <th class="sub-col cold-col">C1 Prec / Rec</th>
+                  <th class="sub-col cold-col">C1 F1</th>
+                  <th class="sub-col cold-col">Conf Matrix [TN,FP/FN,TP]</th>
                 </tr>
               </thead>
               <tbody id="metricsTableBody">
                 <tr>
-                  <td colspan="9" class="empty-table-msg">No evaluation metrics collected yet. Execute evaluation scripts to generate results.</td>
+                  <td colspan="15" class="empty-table-msg">No evaluation metrics collected yet. Execute evaluation scripts to generate results.</td>
                 </tr>
               </tbody>
             </table>
@@ -171,8 +197,8 @@
       <section class="tab-pane" id="config-tab">
         <div class="config-header-banner">
           <div>
-            <h2>Global Meta-Learning Hyperparameters</h2>
-            <p>Universal settings applied across all meta-learning algorithms (MAML, PLATIPUS, VAMPIRE) and test cases</p>
+            <h2>Independent Stage Hyperparameters</h2>
+            <p>1 Day = 144 Time Steps (Fixed Constant). Preprocessing, Training, Fast Adaptation, and Cold-Start parameters are fully decoupled.</p>
           </div>
           <div class="config-banner-actions">
             <button class="btn btn-secondary" id="btnResetConfig">↺ Reset to Factory Defaults</button>
@@ -181,34 +207,34 @@
         </div>
 
         <div class="config-grid">
-          <!-- CARD 1: Dataset & Episodic Splits -->
+          <!-- CARD 1: Preprocessing & Multi-Task Splits -->
           <div class="glass-card">
             <div class="card-header">
               <div class="card-title-group">
                 <span class="card-icon">📁</span>
                 <div>
-                  <h3>1. Dataset & Episodic Splits</h3>
-                  <div class="card-subtitle">Preprocessing and Multi-Task Partitioning</div>
+                  <h3>1. Preprocessing & Episodic Splits</h3>
+                  <div class="card-subtitle">Dataset partitioning into train/val/test tasks</div>
                 </div>
               </div>
-              <span class="badge badge-info">Preprocessing</span>
+              <span class="badge badge-info">Stage 1</span>
             </div>
 
             <div class="form-group">
               <label>Primary Training CSV File</label>
-              <input type="text" id="cfgPrimaryCsv" readonly class="input-disabled">
+              <input type="text" id="cfgPreproPrimaryCsv" readonly class="input-disabled">
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Steps Per Day (24h Window)</label>
-                <input type="number" id="cfgStepsPerDay" min="1" value="144">
-                <small class="helper-text">144 steps = 24h at 10-min sampling</small>
+                <label>Random Seed</label>
+                <input type="number" id="cfgPreproSeed" value="42">
+                <small class="helper-text">Ensures reproducible train/val/test partitioning</small>
               </div>
               <div class="form-group">
-                <label>Random Seed (Reproducibility)</label>
-                <input type="number" id="cfgSeed" value="42">
-                <small class="helper-text">Ensures reproducible train/val splits</small>
+                <label>Meta-Training Support Days</label>
+                <input type="number" id="cfgPreproSupportDays" min="0" max="10" value="1">
+                <small class="helper-text">1 day = 144 steps for inner adaptation</small>
               </div>
             </div>
 
@@ -225,198 +251,263 @@
             <div class="form-row-3">
               <div class="form-group">
                 <label>Train Fraction</label>
-                <input type="number" id="cfgTrainFrac" step="0.05" min="0.1" max="0.9" value="0.70">
+                <input type="number" id="cfgPreproTrainFrac" step="0.05" min="0.0" max="1.0" value="0.70">
               </div>
               <div class="form-group">
                 <label>Val Fraction</label>
-                <input type="number" id="cfgValFrac" step="0.05" min="0.05" max="0.5" value="0.15">
+                <input type="number" id="cfgPreproValFrac" step="0.05" min="0.0" max="1.0" value="0.15">
               </div>
               <div class="form-group">
                 <label>Test Fraction</label>
-                <input type="number" id="cfgTestFrac" step="0.05" min="0.05" max="0.5" value="0.15">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Meta-Training Support Days</label>
-                <input type="number" id="cfgSupportDays" min="1" max="5" value="1">
-              </div>
-              <div class="form-group">
-                <label>Support Steps (k_shot)</label>
-                <input type="number" id="cfgKShot" min="1" value="144">
+                <input type="number" id="cfgPreproTestFrac" step="0.05" min="0.0" max="1.0" value="0.15">
               </div>
             </div>
           </div>
 
-          <!-- CARD 2: Universal Test Cases Evaluation -->
-          <div class="glass-card">
-            <div class="card-header">
-              <div class="card-title-group">
-                <span class="card-icon">🧪</span>
-                <div>
-                  <h3>2. Universal Test Cases Settings</h3>
-                  <div class="card-subtitle">Adaptation budget for TestCase1 ... TestCase N</div>
-                </div>
-              </div>
-              <span class="badge badge-purple">Universal</span>
-            </div>
-
-            <p class="card-desc">Defines how few-shot adaptation splits are formed across all current and future test cases.</p>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Test Case Support Days</label>
-                <input type="number" id="cfgTcSupportDays" min="1" max="5" value="1">
-                <small class="helper-text">Days given to model for adaptation</small>
-              </div>
-              <div class="form-group">
-                <label>Test Case k_shot (Steps)</label>
-                <input type="number" id="cfgTcKShot" min="1" value="144">
-                <small class="helper-text">Remaining steps evaluated on Query set</small>
-              </div>
-            </div>
-
-            <div class="form-section-title">Evaluation Architecture Defaults</div>
-            <div class="info-callout">
-              <span>All evaluation scripts automatically run on CPU/CUDA, standardizing 27 tabular features with full classification reports and confusion matrices.</span>
-            </div>
-          </div>
-
-          <!-- CARD 3: Outer-Loop Meta-Training & Optimization -->
+          <!-- CARD 2: Meta-Training Parameters -->
           <div class="glass-card">
             <div class="card-header">
               <div class="card-title-group">
                 <span class="card-icon">🧠</span>
                 <div>
-                  <h3>3. Outer-Loop Meta-Training</h3>
-                  <div class="card-subtitle">Optimization & meta-gradient updates</div>
+                  <h3>2. Meta-Training Parameters</h3>
+                  <div class="card-subtitle">Global optimization for MAML, PLATIPUS, VAMPIRE</div>
                 </div>
               </div>
-              <span class="badge badge-success">Meta-Training</span>
+              <span class="badge badge-success">Stage 2</span>
             </div>
 
             <div class="form-row">
+              <div class="form-group">
+                <label>Computation Device / Hardware</label>
+                <select id="cfgTrainDevice" class="input-select">
+                  <option value="cuda">⚡ GPU (NVIDIA CUDA)</option>
+                  <option value="cpu">🖥️ CPU (Standard)</option>
+                </select>
+                <small class="helper-text">Accelerate gradient steps with PyTorch CUDA</small>
+              </div>
               <div class="form-group">
                 <label>Total Epochs (num_epochs)</label>
-                <input type="number" id="cfgNumEpochs" min="1" max="500" value="20">
-                <small class="helper-text">Complete passes over meta-tasks</small>
+                <input type="number" id="cfgTrainNumEpochs" min="1" max="500" value="20">
               </div>
+            </div>
+
+            <div class="form-row">
               <div class="form-group">
                 <label>Episodes / Epoch (num_episodes_per_epoch)</label>
-                <input type="number" id="cfgEpsPerEpoch" min="10" max="10000" value="1000">
-                <small class="helper-text">Sampled meta-tasks per epoch</small>
+                <input type="number" id="cfgTrainEpsPerEpoch" min="10" max="10000" value="1000">
               </div>
-            </div>
-
-            <div class="form-row">
               <div class="form-group">
                 <label>Minibatch Size (Meta-Batch)</label>
-                <input type="number" id="cfgMinibatch" min="1" max="64" value="5">
-                <small class="helper-text">Tasks aggregated per meta-step</small>
-              </div>
-              <div class="form-group">
-                <label>Outer Meta LR (meta_lr)</label>
-                <input type="number" id="cfgMetaLr" step="0.0001" min="0.00001" value="0.001">
-                <small class="helper-text">Adam learning rate for base/hyper network</small>
+                <input type="number" id="cfgTrainMinibatch" min="1" max="64" value="5">
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Print Frequency (minibatch_print)</label>
-                <input type="number" id="cfgMinibatchPrint" min="10" max="1000" value="250">
-                <small class="helper-text">Logging interval in episodes</small>
+                <label>Outer Meta LR (meta_lr)</label>
+                <input type="number" id="cfgTrainMetaLr" step="0.0001" min="0.00001" value="0.001">
               </div>
               <div class="form-group">
-                <label>Gradient Approximation (first_order)</label>
-                <div class="toggle-row">
-                  <label class="switch">
-                    <input type="checkbox" id="cfgFirstOrder" checked>
-                    <span class="slider"></span>
-                  </label>
-                  <span class="toggle-label" id="lblFirstOrder">First-Order Approximation Enabled</span>
-                </div>
+                <label>Inner Gradient Steps (num_inner_updates)</label>
+                <input type="number" id="cfgTrainInnerUpdates" min="1" max="50" value="5">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Inner Learning Rate (inner_lr / &alpha;)</label>
+                <input type="number" id="cfgTrainInnerLr" step="0.001" min="0.0001" value="0.01">
+              </div>
+              <div class="form-group">
+                <label>MC Ensemble Models (num_models / M)</label>
+                <input type="number" id="cfgTrainNumModels" min="1" max="32" value="4">
+                <small class="helper-text">Active for VAMPIRE, PLATIPUS, ABML, BMAML</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>KL Divergence Weight (KL_weight / &beta;)</label>
+                <input type="number" id="cfgTrainKlWeight" step="0.000001" min="0.0" value="0.000001">
+                <small class="helper-text">Active for VAMPIRE, PLATIPUS, ABML</small>
+              </div>
+              <div class="form-group">
+                <label>Print Frequency (minibatch_print)</label>
+                <input type="number" id="cfgTrainMinibatchPrint" min="10" max="1000" value="250">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Focal Loss Alpha (&alpha;)</label>
+                <input type="number" id="cfgTrainFocalAlpha" step="0.05" min="0.01" max="1.0" value="0.25">
+              </div>
+              <div class="form-group">
+                <label>Focal Loss Gamma (&gamma;)</label>
+                <input type="number" id="cfgTrainFocalGamma" step="0.5" min="0.0" max="5.0" value="2.0">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>First-Order Approximation</label>
+              <div class="toggle-row">
+                <label class="switch">
+                  <input type="checkbox" id="cfgTrainFirstOrder" checked>
+                  <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="lblTrainFirstOrder">Enabled</span>
               </div>
             </div>
           </div>
 
-          <!-- CARD 4: Inner-Loop Fast Adaptation -->
+          <!-- CARD 3: Fast Adaptation Evaluation Parameters -->
           <div class="glass-card">
             <div class="card-header">
               <div class="card-title-group">
                 <span class="card-icon">⚡</span>
                 <div>
-                  <h3>4. Inner-Loop Fast Adaptation</h3>
-                  <div class="card-subtitle">Task-level fine-tuning on support sets</div>
+                  <h3>3. Fast Adaptation Evaluation Parameters</h3>
+                  <div class="card-subtitle">Task-level fine-tuning on Day 1 test support sets</div>
                 </div>
               </div>
-              <span class="badge badge-maml">Adaptation</span>
-            </div>
-
-            <div class="form-group">
-              <label>Inner Gradient Steps (num_inner_updates)</label>
-              <input type="number" id="cfgInnerUpdates" min="1" max="50" value="5">
-              <small class="helper-text">Number of gradient descent steps on support set during adaptation</small>
-            </div>
-
-            <div class="form-group">
-              <label>Inner Learning Rate (inner_lr / &alpha;)</label>
-              <input type="number" id="cfgInnerLr" step="0.001" min="0.0001" value="0.01">
-              <small class="helper-text">Task-specific step size used in MAML, PLATIPUS, and VAMPIRE</small>
-            </div>
-          </div>
-
-          <!-- CARD 5: Bayesian & Probabilistic Meta-Learning -->
-          <div class="glass-card">
-            <div class="card-header">
-              <div class="card-title-group">
-                <span class="card-icon">🎲</span>
-                <div>
-                  <h3>5. Probabilistic & Bayesian Parameters</h3>
-                  <div class="card-subtitle">PLATIPUS & VAMPIRE variational settings</div>
-                </div>
-              </div>
-              <span class="badge badge-platipus">Bayesian</span>
-            </div>
-
-            <div class="form-group">
-              <label>Monte Carlo Ensemble Models (num_models / M)</label>
-              <input type="number" id="cfgNumModels" min="1" max="32" value="4">
-              <small class="helper-text">Number of stochastic weight samples drawn for prediction averaging</small>
-            </div>
-
-            <div class="form-group">
-              <label>KL Divergence Regularization Weight (KL_weight / &beta;)</label>
-              <input type="number" id="cfgKlWeight" step="0.000001" min="0.0" value="0.000001">
-              <small class="helper-text">Penalty weight enforcing variational posterior closeness to prior</small>
-            </div>
-          </div>
-
-          <!-- CARD 6: Focal Loss Configuration -->
-          <div class="glass-card">
-            <div class="card-header">
-              <div class="card-title-group">
-                <span class="card-icon">🎯</span>
-                <div>
-                  <h3>6. Loss Function (Focal Loss)</h3>
-                  <div class="card-subtitle">Addressing severe class imbalance in tabular tasks</div>
-                </div>
-              </div>
-              <span class="badge badge-danger">Loss Function</span>
+              <span class="badge badge-purple">Stage 3</span>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Alpha (&alpha;) Class Balance Weight</label>
-                <input type="number" id="cfgFocalAlpha" step="0.05" min="0.01" max="1.0" value="0.25">
-                <small class="helper-text">Relative weighting between Class 0 (Not Smoking) and Class 1 (Smoking)</small>
+                <label>Evaluation Device / Hardware</label>
+                <select id="cfgAdaptDevice" class="input-select">
+                  <option value="cuda">⚡ GPU (NVIDIA CUDA)</option>
+                  <option value="cpu">🖥️ CPU (Standard)</option>
+                </select>
               </div>
               <div class="form-group">
-                <label>Gamma (&gamma;) Focusing Parameter</label>
-                <input type="number" id="cfgFocalGamma" step="0.5" min="0.0" max="5.0" value="2.0">
-                <small class="helper-text">Down-weights easy examples, focusing gradient on hard minority samples</small>
+                <label>Model Checkpoint</label>
+                <div class="auto-checkpoint-badge">
+                  <span class="badge-dot pulse"></span>
+                  <span>Auto: Peak Val Accuracy Checkpoint</span>
+                </div>
+                <small class="helper-text">Automatically loaded from log directory</small>
               </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Test Case Support Days</label>
+                <input type="number" id="cfgAdaptSupportDays" min="0" max="10" value="1">
+                <small class="helper-text">1 day = 144 steps for adaptation</small>
+              </div>
+              <div class="form-group">
+                <label>Adaptation Steps (num_inner_updates)</label>
+                <input type="number" id="cfgAdaptInnerUpdates" min="1" max="50" value="5">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Adaptation Step Size (inner_lr / &alpha;)</label>
+                <input type="number" id="cfgAdaptInnerLr" step="0.001" min="0.0001" value="0.01">
+              </div>
+              <div class="form-group">
+                <label>MC Prediction Models (num_models / M)</label>
+                <input type="number" id="cfgAdaptNumModels" min="1" max="32" value="4">
+                <small class="helper-text">Active for VAMPIRE, PLATIPUS, ABML, BMAML</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>KL Divergence Weight (KL_weight / &beta;)</label>
+                <input type="number" id="cfgAdaptKlWeight" step="0.000001" min="0.0" value="0.000001">
+                <small class="helper-text">Active for VAMPIRE, PLATIPUS, ABML</small>
+              </div>
+              <div class="form-group">
+                <label>Adaptation Mode Note</label>
+                <input type="text" value="Few-Shot Adaptation (Day 1 Support)" readonly class="input-disabled">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Focal Loss Alpha (&alpha;)</label>
+                <input type="number" id="cfgAdaptFocalAlpha" step="0.05" min="0.01" max="1.0" value="0.25">
+              </div>
+              <div class="form-group">
+                <label>Focal Loss Gamma (&gamma;)</label>
+                <input type="number" id="cfgAdaptFocalGamma" step="0.5" min="0.0" max="5.0" value="2.0">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>First-Order Gradient Mode</label>
+              <div class="toggle-row">
+                <label class="switch">
+                  <input type="checkbox" id="cfgAdaptFirstOrder" checked>
+                  <span class="slider"></span>
+                </label>
+                <span class="toggle-label" id="lblAdaptFirstOrder">Enabled</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 4: Cold-Start Evaluation Parameters -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">❄️</span>
+                <div>
+                  <h3>4. Cold-Start / Zero-Shot Evaluation</h3>
+                  <div class="card-subtitle">Direct evaluation from global meta-learned prior</div>
+                </div>
+              </div>
+              <span class="badge badge-danger">Stage 4</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Evaluation Device / Hardware</label>
+                <select id="cfgColdDevice" class="input-select">
+                  <option value="cuda">⚡ GPU (NVIDIA CUDA)</option>
+                  <option value="cpu">🖥️ CPU (Standard)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Model Checkpoint</label>
+                <div class="auto-checkpoint-badge">
+                  <span class="badge-dot pulse"></span>
+                  <span>Auto: Peak Val Accuracy Checkpoint</span>
+                </div>
+                <small class="helper-text">Automatically loaded from log directory</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Query Evaluation Support Days</label>
+                <input type="number" id="cfgColdSupportDays" min="0" max="10" value="1">
+                <small class="helper-text">Remaining days evaluated as Query</small>
+              </div>
+              <div class="form-group">
+                <label>MC Prior Models (num_models / M)</label>
+                <input type="number" id="cfgColdNumModels" min="1" max="32" value="4">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Focal Loss Alpha (&alpha;)</label>
+                <input type="number" id="cfgColdFocalAlpha" step="0.05" min="0.01" max="1.0" value="0.25">
+              </div>
+              <div class="form-group">
+                <label>Focal Loss Gamma (&gamma;)</label>
+                <input type="number" id="cfgColdFocalGamma" step="0.5" min="0.0" max="5.0" value="2.0">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Inner Updates (Zero-Shot)</label>
+              <input type="text" value="0 (Strictly Zero-Shot)" readonly class="input-disabled">
             </div>
           </div>
         </div>

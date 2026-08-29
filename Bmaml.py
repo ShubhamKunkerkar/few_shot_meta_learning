@@ -121,8 +121,15 @@ class Bmaml(MLBaseClass):
         """
         pairwise_d_matrix = self.get_pairwise_distance_matrix(x=params)
 
-        median_dist = torch.quantile(input=pairwise_d_matrix, q=0.5)  # tf.reduce_mean(euclidean_dists) ** 2
-        h = median_dist / np.log(self.config["num_models"])
+        # Compute median over off-diagonal non-zero distances to avoid zero collapse
+        off_diag_dists = pairwise_d_matrix[pairwise_d_matrix > 0]
+        if off_diag_dists.numel() > 0:
+            median_dist = torch.quantile(input=off_diag_dists, q=0.5)
+        else:
+            median_dist = torch.tensor(1.0, device=params.device)
+
+        h = median_dist / np.log(max(2, self.config["num_models"]))
+        h = torch.clamp(h, min=1e-5)
 
         kernel_matrix = torch.exp(-pairwise_d_matrix / h)
         kernel_sum = torch.sum(input=kernel_matrix, dim=1, keepdim=True)

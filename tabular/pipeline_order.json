@@ -29,35 +29,35 @@
           "path": "tabular/experiments/fcnet/train_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + FcNet Training",
           "path": "tabular/experiments/fcnet/train_vampire_fcnet.py",
           "architecture": "FcNet",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "MAML + Logistic Regression Training",
           "path": "tabular/experiments/logistic_regression/train_maml_lr.py",
           "architecture": "LogisticRegression",
           "model": "MAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "PLATIPUS + Logistic Regression Training",
           "path": "tabular/experiments/logistic_regression/train_platipus_lr.py",
           "architecture": "LogisticRegression",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + Logistic Regression Training",
           "path": "tabular/experiments/logistic_regression/train_vampire_lr.py",
           "architecture": "LogisticRegression",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         }
       ]
     },
@@ -78,35 +78,35 @@
           "path": "tabular/experiments/fcnet/eval_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + FcNet Evaluation",
           "path": "tabular/experiments/fcnet/eval_vampire_fcnet.py",
           "architecture": "FcNet",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "MAML + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_maml_lr.py",
           "architecture": "LogisticRegression",
           "model": "MAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "PLATIPUS + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_platipus_lr.py",
           "architecture": "LogisticRegression",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_vampire_lr.py",
           "architecture": "LogisticRegression",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         }
       ]
     },
@@ -127,35 +127,35 @@
           "path": "tabular/experiments/no_adaptation/eval_cold_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + FcNet Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_vampire_fcnet.py",
           "architecture": "FcNet",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "MAML + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_maml_lr.py",
           "architecture": "LogisticRegression",
           "model": "MAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "PLATIPUS + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_platipus_lr.py",
           "architecture": "LogisticRegression",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_vampire_lr.py",
           "architecture": "LogisticRegression",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         }
       ]
     }

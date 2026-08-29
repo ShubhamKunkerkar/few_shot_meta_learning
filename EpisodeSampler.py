@@ -17,38 +17,49 @@ class EpisodeSampler(torch.utils.data.BatchSampler):
         self.num_ways = num_ways
         self.num_samples_per_class = num_samples_per_class
         
-        # create a list of dictionary, each has:
-        # - key = label
-        # - value = img_idx
-        self.class_img_idx = [None] * len(sampler.data_source.datasets)
-        j = 0 # track the length of each dataset
-        for dataset_id in range(len(sampler.data_source.datasets)):
+        # Handle both single Dataset and ConcatDataset
+        datasets = getattr(sampler.data_source, 'datasets', [sampler.data_source])
+        self.class_img_idx = [None] * len(datasets)
+        j = 0  # track the cumulative length of datasets
+        for dataset_id, ds in enumerate(datasets):
             self.class_img_idx[dataset_id] = {}
-            for i in range(len(self.sampler.data_source.datasets[dataset_id])):
-                label_idx = self.sampler.data_source.datasets[dataset_id].targets[i]
+            targets = getattr(ds, 'targets', None)
+            for i in range(len(ds)):
+                label_idx = targets[i] if targets is not None else ds[i][1]
+                if isinstance(label_idx, torch.Tensor):
+                    label_idx = label_idx.item()
                 if label_idx not in self.class_img_idx[dataset_id]:
                     self.class_img_idx[dataset_id][label_idx] = []
                 self.class_img_idx[dataset_id][label_idx].append(i + j)
-            j = len(sampler.data_source.datasets[dataset_id])
-        
+            j += len(ds)
 
     def __iter__(self) -> typing.Iterator[typing.List[int]]:
-        while(True):
+        num_datasets = len(self.class_img_idx)
+        while True:
             # randomly sample a dataset
-            dataset_id = random.randint(a=0, b=len(self.sampler.data_source.datasets) - 1)
+            dataset_id = random.randint(a=0, b=num_datasets - 1)
+            avail_labels = list(self.class_img_idx[dataset_id].keys())
+            if len(avail_labels) < self.num_ways:
+                continue
 
             # n-way
-            labels = random.sample(population=self.class_img_idx[dataset_id].keys(), k=self.num_ways)
+            labels = random.sample(population=avail_labels, k=self.num_ways)
 
             # variable to store img idx
             batch = []
-
             for label in labels:
-                batch.extend(random.sample(population=self.class_img_idx[dataset_id][label], k=self.num_samples_per_class))
+                samples = self.class_img_idx[dataset_id][label]
+                if len(samples) >= self.num_samples_per_class:
+                    batch.extend(random.sample(population=samples, k=self.num_samples_per_class))
+                else:
+                    batch.extend(random.choices(population=samples, k=self.num_samples_per_class))
 
             yield batch
-            batch = []
-            labels = []
-    
+
     def __len__(self) -> int:
-        return comb(N=len(self.label_list), k=self.batch)
+        total_combinations = sum(
+            comb(len(class_dict), self.num_ways, exact=True)
+            for class_dict in self.class_img_idx
+            if class_dict and len(class_dict) >= self.num_ways
+        )
+        return int(total_combinations) if total_combinations > 0 else 100000

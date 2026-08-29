@@ -41,22 +41,23 @@ class ProtoNet(MLBaseClass):
 
         model['hyper_net'] = network_architectures[self.config['network_architecture']]()
 
+        # move to device before dummy forward to ensure LazyLinear initializes on the correct device
+        model['hyper_net'].to(self.config['device'])
+
         # ---------------------------------------------------------------
         # run a dummy task to initialize lazy modules defined in base_net
         # ---------------------------------------------------------------
+        split_fn = self.config.get('train_val_split_function', train_val_split)
         for eps_data in eps_dataloader:
             # split data into train and validation
-            split_data = train_val_split(eps_data=eps_data, k_shot=self.config['k_shot'])
+            split_data = split_fn(eps_data=eps_data, k_shot=self.config['k_shot'])
 
             # run to initialize lazy modules
-            model["hyper_net"].forward(split_data['x_t'])
+            model["hyper_net"].forward(split_data['x_t'].to(self.config['device']))
             break
 
         params = torch.nn.utils.parameters_to_vector(parameters=model["hyper_net"].parameters())
         print('Number of parameters of the base network = {0:,}.\n'.format(params.numel()))
-
-        # move to device
-        model["hyper_net"].to(self.config['device'])
 
         # optimizer
         model["optimizer"] = torch.optim.Adam(params=model["hyper_net"].parameters(), lr=self.config['meta_lr'])

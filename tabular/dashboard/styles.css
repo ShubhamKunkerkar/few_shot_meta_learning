@@ -412,7 +412,7 @@ body {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  min-width: 110px;
+  min-width: 125px;
 }
 
 .filter-pills {
@@ -452,6 +452,8 @@ body {
   overflow-x: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .comparison-table {
@@ -462,9 +464,8 @@ body {
 }
 
 .comparison-table th {
-  background: rgba(13, 18, 31, 0.95);
-  padding: 12px 14px;
-  font-size: 12px;
+  padding: 10px 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -472,34 +473,128 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.comparison-table td {
+.header-group-row th {
+  background: rgba(10, 14, 26, 0.98);
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.header-group-row .th-fixed {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: middle;
+}
+
+.th-group {
+  text-align: center;
+  position: relative;
+}
+
+.th-group.group-adapted {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.03) 100%);
+  border-top: 3px solid #10b981;
+  border-right: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.th-group.group-coldstart {
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.03) 100%);
+  border-top: 3px solid #8b5cf6;
+}
+
+.group-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
+.group-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.header-sub-row th {
+  background: rgba(15, 23, 42, 0.95);
+  font-size: 10px;
+  padding: 8px 10px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-sub-row .adapted-col {
+  color: #6ee7b7;
+}
+
+.header-sub-row .adapted-col:last-child {
+  border-right: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.header-sub-row .cold-col {
+  color: #c4b5fd;
+}
+
+.comparison-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.comparison-table td.adapted-col:last-of-type {
+  border-right: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.comparison-table td.empty-col {
+  color: var(--text-muted);
+  text-align: center;
+  font-weight: 400;
+}
+
 .comparison-table tr:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .metric-num {
   font-family: var(--font-code);
   font-weight: 600;
+  font-size: 12px;
+}
+
+.metric-num-sub {
+  font-family: var(--font-code);
+  font-size: 11px;
+  color: var(--text-secondary);
 }
 
 .metric-highlight {
   color: #34d399;
   font-weight: 700;
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
+}
+
+.metric-highlight-cold {
+  color: #a78bfa;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
+}
+
+.metric-good {
+  color: #38bdf8;
+  font-weight: 600;
 }
 
 .cm-box {
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 10px;
   background: var(--bg-dark);
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: inline-block;
+  white-space: nowrap;
 }
 
 .mode-pill {
@@ -515,7 +610,7 @@ body {
 
 .empty-table-msg, .empty-state {
   text-align: center;
-  padding: 32px;
+  padding: 36px;
   color: var(--text-muted);
   font-size: 13px;
 }
@@ -755,6 +850,115 @@ body {
   font-size: 12px;
   color: var(--text-primary);
   font-weight: 500;
+}
+
+/* Interactive Toggle Switch with Tick Mark UI */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 34px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #94a3b8;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Tick Icon */
+.slider::after {
+  position: absolute;
+  content: "✓";
+  left: 9px;
+  top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #818cf8;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch input:checked + .slider {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-color: #818cf8;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(22px);
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.switch input:checked + .slider::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.switch:hover .slider {
+  border-color: rgba(99, 102, 241, 0.6);
+}
+
+/* Auto Checkpoint Badge */
+.auto-checkpoint-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: #34d399;
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.badge-dot.pulse {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 /* Config Grid */

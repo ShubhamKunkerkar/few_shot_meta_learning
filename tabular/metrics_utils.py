@@ -16,8 +16,8 @@ RESULTS_JSON_PATH = os.path.join(REPO_ROOT, "tabular", "outputs", "pipeline_resu
 
 def compute_metrics(y_true, y_pred, test_case: str, task_id: int, model: str, architecture: str, mode: str, query_size: list):
     """Computes structured dictionary of classification metrics."""
-    cm = confusion_matrix(y_true, y_pred).tolist()
-    report = classification_report(y_true, y_pred, target_names=["Not Smoking (0)", "Smoking (1)"], output_dict=True, zero_division=0)
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1]).tolist()
+    report = classification_report(y_true, y_pred, labels=[0, 1], target_names=["Not Smoking (0)", "Smoking (1)"], output_dict=True, zero_division=0)
 
     accuracy = float(report.get("accuracy", 0.0))
     c0 = report.get("Not Smoking (0)", {})

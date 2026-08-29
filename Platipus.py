@@ -7,6 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
 import os
+import json
 import random
 import typing
 
@@ -210,6 +211,7 @@ class Platipus(object):
                 # -------------------------
                 val_nll_mean, val_acc_mean = 0.0, 0.0
                 if val_dataloader is not None:
+                    model["f_base_net"].eval()
                     loss_temp, accuracy_temp = self.evaluate(
                         num_eps=self.config['num_episodes'],
                         eps_dataloader=val_dataloader,
@@ -221,14 +223,49 @@ class Platipus(object):
                     # Log to TensorBoard using the last global_step of the epoch
                     tb_writer.add_scalar(tag="Val_NLL", scalar_value=val_nll_mean, global_step=global_step)
                     tb_writer.add_scalar(tag="Val_Accuracy", scalar_value=val_acc_mean, global_step=global_step)
+                    model["f_base_net"].train()
 
-                # save model
+                # save model with validation accuracy metadata
                 checkpoint = {
+                    "epoch": epoch_id + 1,
                     "hyper_net_state_dict": model["hyper_net"].state_dict(),
-                    "opt_state_dict": model["optimizer"].state_dict()
+                    "opt_state_dict": model["optimizer"].state_dict(),
+                    "val_acc": val_acc_mean if val_dataloader is not None else None,
+                    "val_nll": val_nll_mean if val_dataloader is not None else None
                 }
                 checkpoint_path = os.path.join(self.config["logdir"], "Epoch_{0:d}.pt".format(epoch_id + 1))
                 torch.save(obj=checkpoint, f=checkpoint_path)
+
+                # Maintain training history & best checkpoint
+                history_file = os.path.join(self.config['logdir'], 'training_history.json')
+                history = {"epochs": [], "best_checkpoint": None}
+                if os.path.exists(history_file):
+                    try:
+                        with open(history_file, 'r', encoding='utf-8') as hf:
+                            history = json.load(hf)
+                    except Exception:
+                        history = {"epochs": [], "best_checkpoint": None}
+
+                epoch_record = {
+                    "epoch": epoch_id + 1,
+                    "val_acc": val_acc_mean,
+                    "val_nll": val_nll_mean,
+                    "checkpoint_path": checkpoint_path
+                }
+                history["epochs"].append(epoch_record)
+
+                curr_best = history.get("best_checkpoint")
+                if curr_best is None or (val_acc_mean is not None and val_acc_mean >= curr_best.get("val_acc", -1)):
+                    history["best_checkpoint"] = epoch_record
+                    best_model_path = os.path.join(self.config['logdir'], 'best_model.pt')
+                    torch.save(obj=checkpoint, f=best_model_path)
+
+                try:
+                    with open(history_file, 'w', encoding='utf-8') as hf:
+                        json.dump(history, hf, indent=2)
+                except Exception:
+                    pass
+
                 # --- Clean Console Logging ---
                 if val_dataloader is not None:
                     print(f"[Epoch {epoch_id + 1}/{self.config['resume_epoch'] + self.config['num_epochs']}] Saved to {checkpoint_path} | Val NLL: {val_nll_mean:.4f} | Val Acc: {val_acc_mean:.2f}%")
