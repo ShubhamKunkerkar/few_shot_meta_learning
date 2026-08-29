@@ -15,7 +15,7 @@
   },
   "meta_training": {
     "device": "cpu",
-    "num_epochs": 20,
+    "num_epochs": 100,
     "num_episodes_per_epoch": 1000,
     "minibatch": 5,
     "minibatch_print": 250,

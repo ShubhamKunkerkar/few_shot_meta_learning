@@ -38,9 +38,18 @@ def get_python_executable():
         pass
 
     candidates = [
+        # Windows conda paths
         os.path.expanduser(r"~\.conda\envs\few_shot_meta_learning\python.exe"),
         os.path.expanduser(r"~\anaconda3\envs\few_shot_meta_learning\python.exe"),
         os.path.expanduser(r"~\miniconda3\envs\few_shot_meta_learning\python.exe"),
+        # macOS / Linux conda paths
+        os.path.expanduser("~/.conda/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/anaconda3/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/miniconda3/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/miniforge3/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/opt/anaconda3/envs/few_shot_meta_learning/bin/python"),
+        "/opt/homebrew/Caskroom/miniforge/base/envs/few_shot_meta_learning/bin/python",
+        "/opt/homebrew/anaconda3/envs/few_shot_meta_learning/bin/python",
     ]
     for c in candidates:
         if os.path.exists(c):

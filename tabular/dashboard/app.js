@@ -441,21 +441,84 @@ function renderComparisonTable(metrics) {
     return;
   }
 
-  // Find max accuracy among adapted and cold
-  const maxAdaptedAcc = Math.max(...rows.filter(r => r.adapted).map(r => r.adapted.accuracy || 0), 0);
-  const maxColdAcc = Math.max(...rows.filter(r => r.cold).map(r => r.cold.accuracy || 0), 0);
-
   rows.forEach(item => {
     const tr = document.createElement('tr');
 
     const modelBadge = `<span class="badge badge-${(item.model || '').toLowerCase()}">${item.model}</span>`;
     const archBadge = `<span class="badge badge-arch">${item.architecture}</span>`;
 
+    const ad = item.adapted;
+    const cd = item.cold;
+
+    // Row-level comparison classes
+    let adAccClass = 'metric-num';
+    let cdAccClass = 'metric-num';
+    let adAccBadge = '';
+    let cdAccBadge = '';
+
+    let adMacroClass = 'metric-num';
+    let cdMacroClass = 'metric-num';
+
+    let adC1F1Class = 'metric-num';
+    let cdC1F1Class = 'metric-num';
+
+    if (ad && cd) {
+      // 1. Accuracy comparison
+      if (ad.accuracy > cd.accuracy) {
+        const diff = (ad.accuracy - cd.accuracy).toFixed(2);
+        adAccClass = 'metric-win';
+        cdAccClass = 'metric-loss';
+        adAccBadge = `<span title="+${diff}% vs Cold-Start">▲</span>`;
+        cdAccBadge = `<span title="-${diff}% vs Adapted">▼</span>`;
+      } else if (ad.accuracy < cd.accuracy) {
+        const diff = (cd.accuracy - ad.accuracy).toFixed(2);
+        adAccClass = 'metric-loss';
+        cdAccClass = 'metric-win';
+        adAccBadge = `<span title="-${diff}% vs Cold-Start">▼</span>`;
+        cdAccBadge = `<span title="+${diff}% vs Adapted">▲</span>`;
+      } else {
+        adAccClass = 'metric-tie';
+        cdAccClass = 'metric-tie';
+      }
+
+      // 2. Macro F1 comparison
+      if (ad.macro_f1 > cd.macro_f1) {
+        adMacroClass = 'metric-win';
+        cdMacroClass = 'metric-loss';
+      } else if (ad.macro_f1 < cd.macro_f1) {
+        adMacroClass = 'metric-loss';
+        cdMacroClass = 'metric-win';
+      } else {
+        adMacroClass = 'metric-tie';
+        cdMacroClass = 'metric-tie';
+      }
+
+      // 3. Class 1 (Smoking) F1 comparison
+      const adC1F1 = (ad.class_1 && ad.class_1.f1 !== undefined) ? ad.class_1.f1 : 0;
+      const cdC1F1 = (cd.class_1 && cd.class_1.f1 !== undefined) ? cd.class_1.f1 : 0;
+      if (adC1F1 > cdC1F1) {
+        adC1F1Class = 'metric-win';
+        cdC1F1Class = 'metric-loss';
+      } else if (adC1F1 < cdC1F1) {
+        adC1F1Class = 'metric-loss';
+        cdC1F1Class = 'metric-win';
+      } else {
+        adC1F1Class = 'metric-tie';
+        cdC1F1Class = 'metric-tie';
+      }
+    } else if (ad) {
+      adAccClass = 'metric-tie';
+      adMacroClass = 'metric-tie';
+      adC1F1Class = 'metric-tie';
+    } else if (cd) {
+      cdAccClass = 'metric-tie';
+      cdMacroClass = 'metric-tie';
+      cdC1F1Class = 'metric-tie';
+    }
+
     // 1. Adapted columns helper
     let adaptedHtml = '';
-    if (item.adapted) {
-      const ad = item.adapted;
-      const isTop = (ad.accuracy === maxAdaptedAcc && maxAdaptedAcc > 0);
+    if (ad) {
       const c0 = ad.class_0 || {};
       const c1 = ad.class_1 || {};
       const c0Pr = `${c0.precision !== undefined ? c0.precision.toFixed(1) : '0.0'}% / ${c0.recall !== undefined ? c0.recall.toFixed(1) : '0.0'}%`;
@@ -464,11 +527,11 @@ function renderComparisonTable(metrics) {
       const cmStr = `[${cm[0][0]}, ${cm[0][1]} / ${cm[1][0]}, ${cm[1][1]}]`;
 
       adaptedHtml = `
-        <td class="adapted-col"><span class="metric-num ${isTop ? 'metric-highlight' : ''}">${ad.accuracy.toFixed(2)}% ${isTop ? '⭐' : ''}</span></td>
-        <td class="adapted-col"><span class="metric-num">${ad.macro_f1.toFixed(2)}%</span></td>
+        <td class="adapted-col"><span class="${adAccClass}">${ad.accuracy.toFixed(2)}% ${adAccBadge}</span></td>
+        <td class="adapted-col"><span class="${adMacroClass}">${ad.macro_f1.toFixed(2)}%</span></td>
         <td class="adapted-col"><span class="metric-num-sub">${c0Pr}</span></td>
         <td class="adapted-col"><span class="metric-num-sub">${c1Pr}</span></td>
-        <td class="adapted-col"><span class="metric-num ${c1.f1 > 50 ? 'metric-good' : ''}">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
+        <td class="adapted-col"><span class="${adC1F1Class}">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
         <td class="adapted-col"><span class="cm-box">${cmStr}</span></td>
       `;
     } else {
@@ -484,9 +547,7 @@ function renderComparisonTable(metrics) {
 
     // 2. Cold-Start (Cooldown) columns helper
     let coldHtml = '';
-    if (item.cold) {
-      const cd = item.cold;
-      const isTop = (cd.accuracy === maxColdAcc && maxColdAcc > 0);
+    if (cd) {
       const c0 = cd.class_0 || {};
       const c1 = cd.class_1 || {};
       const c0Pr = `${c0.precision !== undefined ? c0.precision.toFixed(1) : '0.0'}% / ${c0.recall !== undefined ? c0.recall.toFixed(1) : '0.0'}%`;
@@ -495,11 +556,11 @@ function renderComparisonTable(metrics) {
       const cmStr = `[${cm[0][0]}, ${cm[0][1]} / ${cm[1][0]}, ${cm[1][1]}]`;
 
       coldHtml = `
-        <td class="cold-col"><span class="metric-num ${isTop ? 'metric-highlight-cold' : ''}">${cd.accuracy.toFixed(2)}% ${isTop ? '✨' : ''}</span></td>
-        <td class="cold-col"><span class="metric-num">${cd.macro_f1.toFixed(2)}%</span></td>
+        <td class="cold-col"><span class="${cdAccClass}">${cd.accuracy.toFixed(2)}% ${cdAccBadge}</span></td>
+        <td class="cold-col"><span class="${cdMacroClass}">${cd.macro_f1.toFixed(2)}%</span></td>
         <td class="cold-col"><span class="metric-num-sub">${c0Pr}</span></td>
         <td class="cold-col"><span class="metric-num-sub">${c1Pr}</span></td>
-        <td class="cold-col"><span class="metric-num ${c1.f1 > 50 ? 'metric-good' : ''}">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
+        <td class="cold-col"><span class="${cdC1F1Class}">${c1.f1 !== undefined ? c1.f1.toFixed(2) : '0.00'}%</span></td>
         <td class="cold-col"><span class="cm-box">${cmStr}</span></td>
       `;
     } else {
@@ -933,8 +994,14 @@ function initActions() {
   document.getElementById('btnDryRun').addEventListener('click', () => runPipeline(true));
   document.getElementById('btnStopPipeline').addEventListener('click', stopPipeline);
 
-  document.getElementById('btnClearTerminal').addEventListener('click', () => {
-    document.getElementById('terminalOutput').textContent = '';
+  document.getElementById('btnClearTerminal').addEventListener('click', async () => {
+    document.getElementById('terminalOutput').textContent = 'Console logs cleared.';
+    try {
+      await fetch('/api/terminal/clear', { method: 'POST' });
+      showToast('Console logs cleared successfully!', 'success');
+    } catch (e) {
+      showToast('Cleared local terminal console', 'success');
+    }
   });
 
   document.getElementById('btnCopyTerminal').addEventListener('click', () => {

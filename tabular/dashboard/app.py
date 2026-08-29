@@ -54,9 +54,18 @@ def get_python_executable():
         pass
 
     candidates = [
+        # Windows conda paths
         os.path.expanduser(r"~\.conda\envs\few_shot_meta_learning\python.exe"),
         os.path.expanduser(r"~\anaconda3\envs\few_shot_meta_learning\python.exe"),
         os.path.expanduser(r"~\miniconda3\envs\few_shot_meta_learning\python.exe"),
+        # macOS / Linux conda paths
+        os.path.expanduser("~/.conda/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/anaconda3/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/miniconda3/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/miniforge3/envs/few_shot_meta_learning/bin/python"),
+        os.path.expanduser("~/opt/anaconda3/envs/few_shot_meta_learning/bin/python"),
+        "/opt/homebrew/Caskroom/miniforge/base/envs/few_shot_meta_learning/bin/python",
+        "/opt/homebrew/anaconda3/envs/few_shot_meta_learning/bin/python",
     ]
     for c in candidates:
         if os.path.exists(c):
@@ -138,6 +147,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._save_json_file(PIPELINE_PATH, data)
         elif url_path == "/api/results/clear":
             self._save_json_file(RESULTS_PATH, {"tasks_status": [], "metrics": []})
+        elif url_path in ("/api/terminal/clear", "/api/logs/clear"):
+            global execution_logs
+            with process_lock:
+                execution_logs = []
+            self._set_headers(status=200)
+            self.wfile.write(json.dumps({"status": "cleared", "message": "Terminal logs cleared"}).encode("utf-8"))
         elif url_path == "/api/run":
             self._handle_run(data)
         elif url_path == "/api/stop":

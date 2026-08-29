@@ -2,129 +2,129 @@
   "epochs": [
     {
       "epoch": 1,
-      "val_acc": 91.3645828962326,
-      "val_nll": 0.025401537374127658,
+      "val_acc": 91.10416656732559,
+      "val_nll": 0.026401790224481372,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_1.pt"
     },
     {
       "epoch": 2,
-      "val_acc": 91.21874976158142,
-      "val_nll": 0.023940657936036586,
+      "val_acc": 89.50694435834885,
+      "val_nll": 0.026474699545651674,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_2.pt"
     },
     {
       "epoch": 3,
-      "val_acc": 90.54861062765121,
-      "val_nll": 0.024676783881150185,
+      "val_acc": 91.66319441795349,
+      "val_nll": 0.02207412616815418,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_3.pt"
     },
     {
       "epoch": 4,
-      "val_acc": 90.84374994039536,
-      "val_nll": 0.023611830270383508,
+      "val_acc": 89.87152761220932,
+      "val_nll": 0.02488248042296618,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_4.pt"
     },
     {
       "epoch": 5,
-      "val_acc": 90.36111110448837,
-      "val_nll": 0.023533197462093085,
+      "val_acc": 89.83333307504654,
+      "val_nll": 0.02489293210906908,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_5.pt"
     },
     {
       "epoch": 6,
-      "val_acc": 89.76388883590698,
-      "val_nll": 0.023595180150587113,
+      "val_acc": 91.18749988079071,
+      "val_nll": 0.021337849739938974,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_6.pt"
     },
     {
       "epoch": 7,
-      "val_acc": 90.56249964237213,
-      "val_nll": 0.02075657233595848,
+      "val_acc": 90.70486110448837,
+      "val_nll": 0.021077358964830636,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_7.pt"
     },
     {
       "epoch": 8,
-      "val_acc": 90.5590278506279,
-      "val_nll": 0.02036374727031216,
+      "val_acc": 90.48611098527908,
+      "val_nll": 0.02089767684461549,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_8.pt"
     },
     {
       "epoch": 9,
-      "val_acc": 91.27083343267441,
-      "val_nll": 0.018891599252820013,
+      "val_acc": 91.32638865709305,
+      "val_nll": 0.018778797248378398,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_9.pt"
     },
     {
       "epoch": 10,
-      "val_acc": 90.98958319425583,
-      "val_nll": 0.019284361434401945,
+      "val_acc": 90.25694441795349,
+      "val_nll": 0.01999300788738765,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_10.pt"
     },
     {
       "epoch": 11,
-      "val_acc": 91.77430558204651,
-      "val_nll": 0.018085262416861952,
+      "val_acc": 93.04166674613953,
+      "val_nll": 0.015066867731511592,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_11.pt"
     },
     {
       "epoch": 12,
-      "val_acc": 92.08333373069763,
-      "val_nll": 0.01728105770307593,
+      "val_acc": 91.9826391339302,
+      "val_nll": 0.016858930098242127,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_12.pt"
     },
     {
       "epoch": 13,
-      "val_acc": 91.74652779102325,
-      "val_nll": 0.018166720991721376,
+      "val_acc": 92.24999976158142,
+      "val_nll": 0.016643531318986788,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_13.pt"
     },
     {
       "epoch": 14,
-      "val_acc": 92.71875011920929,
-      "val_nll": 0.016149759108084253,
+      "val_acc": 92.50000017881393,
+      "val_nll": 0.016937575735501014,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_14.pt"
     },
     {
       "epoch": 15,
-      "val_acc": 91.94097203016281,
-      "val_nll": 0.01725485259841662,
+      "val_acc": 92.40972238779068,
+      "val_nll": 0.016510201655037235,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_15.pt"
     },
     {
       "epoch": 16,
-      "val_acc": 92.08680522441864,
-      "val_nll": 0.0177041014097631,
+      "val_acc": 92.85069435834885,
+      "val_nll": 0.015450007466133684,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_16.pt"
     },
     {
       "epoch": 17,
-      "val_acc": 92.27777791023254,
-      "val_nll": 0.016433058519978658,
+      "val_acc": 92.08680576086044,
+      "val_nll": 0.016711880813818424,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_17.pt"
     },
     {
       "epoch": 18,
-      "val_acc": 92.5972221493721,
-      "val_nll": 0.016114364818349713,
+      "val_acc": 93.34722203016281,
+      "val_nll": 0.014867597164702602,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_18.pt"
     },
     {
       "epoch": 19,
-      "val_acc": 92.56249994039536,
-      "val_nll": 0.016691355496368486,
+      "val_acc": 92.14583361148834,
+      "val_nll": 0.01672363352146931,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_19.pt"
     },
     {
       "epoch": 20,
-      "val_acc": 92.06597232818604,
-      "val_nll": 0.01741664850269444,
+      "val_acc": 92.48958343267441,
+      "val_nll": 0.015548023679002654,
       "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_20.pt"
     }
   ],
   "best_checkpoint": {
-    "epoch": 14,
-    "val_acc": 92.71875011920929,
-    "val_nll": 0.016149759108084253,
-    "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_14.pt"
+    "epoch": 18,
+    "val_acc": 93.34722203016281,
+    "val_nll": 0.014867597164702602,
+    "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_maml_fcnet\\Epoch_18.pt"
   }
 }
