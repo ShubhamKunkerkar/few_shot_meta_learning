@@ -82,6 +82,8 @@
             <button class="btn-chip" data-preset="maml">MAML Only</button>
             <button class="btn-chip" data-preset="platipus">PLATIPUS Only</button>
             <button class="btn-chip" data-preset="vampire">VAMPIRE Only</button>
+            <button class="btn-chip" data-preset="abml">ABML Only</button>
+            <button class="btn-chip" data-preset="bmaml">BMAML Only</button>
             <button class="btn-chip" data-preset="fcnet">FcNet Only</button>
             <button class="btn-chip" data-preset="lr">Logistic Reg Only</button>
             <button class="btn-chip" data-preset="eval_only">Eval Only</button>
@@ -138,6 +140,8 @@
                 <button class="pill" data-filter-model="MAML">MAML</button>
                 <button class="pill" data-filter-model="PLATIPUS">PLATIPUS</button>
                 <button class="pill" data-filter-model="VAMPIRE">VAMPIRE</button>
+                <button class="pill" data-filter-model="ABML">ABML</button>
+                <button class="pill" data-filter-model="BMAML">BMAML</button>
               </div>
             </div>
 
@@ -163,7 +167,7 @@
                     <div class="group-title"><span>⚡ Adapted</span> <span class="group-sub">(Fast Adaptation / Support-Tuned)</span></div>
                   </th>
                   <th colspan="6" class="th-group group-coldstart">
-                    <div class="group-title"><span>❄️ Cooldown</span> <span class="group-sub">(Cold-Start / Zero-Shot Meta Prior)</span></div>
+                    <div class="group-title"><span>❄️ Cold-Start</span> <span class="group-sub">(Zero-Shot Meta Prior)</span></div>
                   </th>
                 </tr>
                 <tr class="header-sub-row">
@@ -236,6 +240,11 @@
                 <input type="number" id="cfgPreproSupportDays" min="0" max="10" value="1">
                 <small class="helper-text">1 day = 144 steps for inner adaptation</small>
               </div>
+              <div class="form-group">
+                <label>TSLS Outlier Cap (Minutes)</label>
+                <input type="number" id="cfgPreproTslsCap" min="100" max="5000" value="1220.0">
+                <small class="helper-text">Clips extreme TSLS outlier values</small>
+              </div>
             </div>
 
             <div class="form-section-title">Meta-Dataset Partition Fractions</div>
@@ -264,14 +273,64 @@
             </div>
           </div>
 
-          <!-- CARD 2: Meta-Training Parameters -->
+          <!-- CARD 2: Base Network (FcNet) Architecture -->
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-icon">🧬</span>
+                <div>
+                  <h3>2. Base Network (FcNet) Architecture</h3>
+                  <div class="card-subtitle">Backbone neural network topology, activations, and regularization</div>
+                </div>
+              </div>
+              <span class="badge badge-info">Neural Net</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Hidden Units Topology (num_hidden_units)</label>
+                <input type="text" id="cfgFcnetHiddenUnits" value="40, 40" placeholder="e.g. 40, 40 or 64, 64, 32">
+                <small class="helper-text">List of hidden layer dimensions (comma-separated, default: 40, 40)</small>
+              </div>
+              <div class="form-group">
+                <label>Activation Function (activation)</label>
+                <select id="cfgFcnetActivation" class="input-select">
+                  <option value="relu">ReLU (Rectified Linear Unit)</option>
+                  <option value="leaky_relu">LeakyReLU (Avoids dying neurons)</option>
+                  <option value="elu">ELU (Exponential Linear Unit)</option>
+                  <option value="gelu">GELU (Gaussian Error Linear Unit)</option>
+                  <option value="tanh">Tanh (Hyperbolic Tangent)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Dropout Regularization Rate (dropout_rate)</label>
+                <input type="number" id="cfgFcnetDropout" step="0.05" min="0.0" max="0.5" value="0.0">
+                <small class="helper-text">0.0 = disabled, 0.1 to 0.5 = active dropout</small>
+              </div>
+              <div class="form-group">
+                <label>Layer Normalization (use_layernorm)</label>
+                <div class="toggle-row">
+                  <label class="switch">
+                    <input type="checkbox" id="cfgFcnetLayernorm">
+                    <span class="slider"></span>
+                  </label>
+                  <span class="toggle-label" id="lblFcnetLayernorm">Disabled</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3: Meta-Training Parameters -->
           <div class="glass-card">
             <div class="card-header">
               <div class="card-title-group">
                 <span class="card-icon">🧠</span>
                 <div>
-                  <h3>2. Meta-Training Parameters</h3>
-                  <div class="card-subtitle">Global optimization for MAML, PLATIPUS, VAMPIRE</div>
+                  <h3>3. Meta-Training Parameters</h3>
+                  <div class="card-subtitle">Global optimization for MAML, PLATIPUS, VAMPIRE, ABML, BMAML</div>
                 </div>
               </div>
               <span class="badge badge-success">Stage 2</span>
@@ -349,25 +408,66 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label>First-Order Approximation</label>
-              <div class="toggle-row">
-                <label class="switch">
-                  <input type="checkbox" id="cfgTrainFirstOrder" checked>
-                  <span class="slider"></span>
-                </label>
-                <span class="toggle-label" id="lblTrainFirstOrder">Enabled</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Classification Decision Threshold (&tau;)</label>
+                <input type="number" id="cfgTrainThreshold" step="0.05" min="0.01" max="0.99" value="0.50">
+                <small class="helper-text">Default 0.50 | Controls epoch validation accuracy</small>
+              </div>
+              <div class="form-group">
+                <label>First-Order Approximation</label>
+                <div class="toggle-row">
+                  <label class="switch">
+                    <input type="checkbox" id="cfgTrainFirstOrder" checked>
+                    <span class="slider"></span>
+                  </label>
+                  <span class="toggle-label" id="lblTrainFirstOrder">Enabled</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section-title">Bayesian & Particle Algorithm Parameters</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>BMAML SVGD Bandwidth Scale</label>
+                <input type="number" id="cfgTrainSvgdBandwidth" step="0.1" min="0.1" max="10.0" value="1.0">
+                <small class="helper-text">Multiplies median-heuristic RBF bandwidth h</small>
+              </div>
+              <div class="form-group">
+                <label>BMAML SVGD Repulsion Weight</label>
+                <input type="number" id="cfgTrainSvgdRepulsive" step="0.1" min="0.0" max="10.0" value="1.0">
+                <small class="helper-text">Controls particle repulsion gradient force</small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>ABML Gamma Prior Shape (&alpha;<sub>0</sub>) / Rate (&beta;<sub>0</sub>)</label>
+                <div class="input-dual">
+                  <input type="number" id="cfgTrainGammaConcentration" step="0.1" min="0.01" value="1.0" placeholder="Shape &alpha;0">
+                  <input type="number" id="cfgTrainGammaRate" step="0.005" min="0.001" value="0.01" placeholder="Rate &beta;0">
+                </div>
+                <small class="helper-text">Hyper-prior on precision &tau; = exp(-2 log &sigma;)</small>
+              </div>
+              <div class="form-group">
+                <label>ABML Normal Prior Mean (&mu;<sub>0</sub>) / Scale (&sigma;<sub>0</sub>)</label>
+                <div class="input-dual">
+                  <input type="number" id="cfgTrainNormLoc" step="0.1" value="0.0" placeholder="Mean &mu;0">
+                  <input type="number" id="cfgTrainNormScale" step="0.1" min="0.01" value="1.0" placeholder="Scale &sigma;0">
+                </div>
+                <small class="helper-text">Hyper-prior on weight distribution mean &mu;</small>
               </div>
             </div>
           </div>
 
-          <!-- CARD 3: Fast Adaptation Evaluation Parameters -->
+          <!-- CARD 4: Fast Adaptation Evaluation Parameters -->
           <div class="glass-card">
             <div class="card-header">
               <div class="card-title-group">
                 <span class="card-icon">⚡</span>
                 <div>
-                  <h3>3. Fast Adaptation Evaluation Parameters</h3>
+                  <h3>4. Fast Adaptation Evaluation Parameters</h3>
                   <div class="card-subtitle">Task-level fine-tuning on Day 1 test support sets</div>
                 </div>
               </div>
@@ -423,8 +523,9 @@
                 <small class="helper-text">Active for VAMPIRE, PLATIPUS, ABML</small>
               </div>
               <div class="form-group">
-                <label>Adaptation Mode Note</label>
-                <input type="text" value="Few-Shot Adaptation (Day 1 Support)" readonly class="input-disabled">
+                <label>Classification Decision Threshold (&tau;)</label>
+                <input type="number" id="cfgAdaptThreshold" step="0.05" min="0.01" max="0.99" value="0.50">
+                <small class="helper-text">Default 0.50 | Lower threshold boosts Smoking recall</small>
               </div>
             </div>
 
@@ -436,6 +537,19 @@
               <div class="form-group">
                 <label>Focal Loss Gamma (&gamma;)</label>
                 <input type="number" id="cfgAdaptFocalGamma" step="0.5" min="0.0" max="5.0" value="2.0">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>BMAML SVGD Bandwidth Scale</label>
+                <input type="number" id="cfgAdaptSvgdBandwidth" step="0.1" min="0.1" max="10.0" value="1.0">
+                <small class="helper-text">Multiplies test-time SVGD bandwidth</small>
+              </div>
+              <div class="form-group">
+                <label>BMAML SVGD Repulsion Weight</label>
+                <input type="number" id="cfgAdaptSvgdRepulsive" step="0.1" min="0.0" max="10.0" value="1.0">
+                <small class="helper-text">Particle repulsion multiplier during adaptation</small>
               </div>
             </div>
 
@@ -451,13 +565,13 @@
             </div>
           </div>
 
-          <!-- CARD 4: Cold-Start Evaluation Parameters -->
+          <!-- CARD 5: Cold-Start Evaluation Parameters -->
           <div class="glass-card">
             <div class="card-header">
               <div class="card-title-group">
                 <span class="card-icon">❄️</span>
                 <div>
-                  <h3>4. Cold-Start / Zero-Shot Evaluation</h3>
+                  <h3>5. Cold-Start / Zero-Shot Evaluation</h3>
                   <div class="card-subtitle">Direct evaluation from global meta-learned prior</div>
                 </div>
               </div>
@@ -505,9 +619,16 @@
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Inner Updates (Zero-Shot)</label>
-              <input type="text" value="0 (Strictly Zero-Shot)" readonly class="input-disabled">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Classification Decision Threshold (&tau;)</label>
+                <input type="number" id="cfgColdThreshold" step="0.05" min="0.01" max="0.99" value="0.50">
+                <small class="helper-text">Default 0.50 | Zero-shot prior classification boundary</small>
+              </div>
+              <div class="form-group">
+                <label>Inner Updates (Zero-Shot)</label>
+                <input type="text" value="0 (Strictly Zero-Shot)" readonly class="input-disabled">
+              </div>
             </div>
           </div>
         </div>

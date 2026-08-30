@@ -109,7 +109,9 @@ def main():
         y_v = split_data['y_v'].to(device)
 
         logits = maml.prediction(x=x_v, adapted_hyper_net=model["hyper_net"], model=model)
-        y_pred = torch.softmax(input=logits, dim=1).argmax(dim=1).cpu().numpy()
+        probs = torch.softmax(input=logits, dim=1)
+        cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
+        y_pred = (probs[:, 1] >= cls_threshold).long().cpu().numpy()
         y_true = y_v.cpu().numpy()
 
         compute_metrics(

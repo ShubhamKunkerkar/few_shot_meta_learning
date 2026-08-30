@@ -41,7 +41,8 @@ from sklearn.preprocessing import StandardScaler
 # ----------------------------------------------------------------------
 LOCATION_CLASSES = [
     'Home', 'Public Place', 'Office', 'Construction Site',
-    'Factory', 'Restaurant', 'Gym', 'Entertainment', 'Market'
+    'Factory', 'Restaurant', 'Gym', 'Entertainment', 'Market',
+    'School', 'Hospital'
 ]
 
 EMP_STAT_CLASSES = [10, 11, 12, 13, 14, 101, 103, 104, 105, 108]
@@ -51,7 +52,7 @@ STATIC_COLS = ["time_sin", "time_cos", "is_sleeping", "SEX_A"]
 ONE_HOT_LOC_COLS = [f"loc_{loc}" for loc in LOCATION_CLASSES]
 ONE_HOT_EMP_COLS = [f"emp_{emp}" for emp in EMP_STAT_CLASSES]
 
-# Full 27 ordered features
+# Full 29 ordered features
 FEATURE_COLS = STATIC_COLS + CONTINUOUS_COLS + ONE_HOT_LOC_COLS + ONE_HOT_EMP_COLS
 TARGET_COL = "Did the user smoke in next 10 mins"
 DEFAULT_TSLS_CAP = 1220.0

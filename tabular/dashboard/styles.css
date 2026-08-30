@@ -811,8 +811,20 @@ body {
 .badge-maml { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
 .badge-platipus { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
 .badge-vampire { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+.badge-abml { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.badge-bmaml { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 .badge-arch { background: rgba(255, 255, 255, 0.08); color: var(--text-secondary); }
 .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+.input-dual {
+  display: flex;
+  gap: 8px;
+}
+
+.input-dual input {
+  flex: 1;
+  min-width: 0;
+}
 
 /* Config Header Banner */
 .config-header-banner {
@@ -1065,13 +1077,91 @@ body {
   color: var(--text-primary);
   font-family: var(--font-code);
   font-size: 13px;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* ==========================================================================
+   Modern Dropdown / Select Inputs
+   ========================================================================== */
+select,
+.input-select,
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--bg-dark);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 40px 10px 14px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+select:hover,
+.input-select:hover,
+.form-group select:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  background-color: #151d30;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.15), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+select:focus,
+.input-select:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background-color: #172036;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'%3E%3C/polyline%3E%3C/svg%3E");
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+select:disabled,
+.input-select:disabled,
+.form-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+/* Modern styling for Dropdown Options popup */
+select option {
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+select option:checked {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+select optgroup {
+  background-color: #0b1120;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 8px 10px;
 }
 
 .input-disabled {

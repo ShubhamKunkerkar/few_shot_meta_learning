@@ -36,7 +36,10 @@ class Maml(MLBaseClass):
         if self.config['network_architecture'] == 'FcNet':
             base_net = FcNet(
                 dim_output=self.config['num_ways'],
-                num_hidden_units=(40, 40)
+                num_hidden_units=self.config.get('num_hidden_units', (40, 40)),
+                activation=self.config.get('activation', 'relu'),
+                dropout_rate=self.config.get('dropout_rate', 0.0),
+                use_layernorm=self.config.get('use_layernorm', False)
             )
         elif self.config['network_architecture'] == 'CNN':
             base_net = CNN(
@@ -187,7 +190,12 @@ class Maml(MLBaseClass):
 
         loss = self.config['loss_function'](input=logits, target=y_v)
 
-        accuracy = (logits.argmax(dim=1) == y_v).float().mean().item()
+        cls_threshold = float(self.config.get('classification_threshold', 0.5))
+        if logits.shape[1] == 2:
+            probs = torch.softmax(input=logits, dim=1)
+            accuracy = ((probs[:, 1] >= cls_threshold).long() == y_v).float().mean().item()
+        else:
+            accuracy = (logits.argmax(dim=1) == y_v).float().mean().item()
 
         return loss.item(), accuracy * 100
 

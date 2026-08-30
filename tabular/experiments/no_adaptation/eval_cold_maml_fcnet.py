@@ -24,6 +24,7 @@ def main():
 
     cfg = load_config()
     cold_cfg = cfg.get('cold_start_eval', cfg.get('test_cases', {}))
+    fcnet_cfg = cfg.get('fcnet', {})
     loss_cfg = cold_cfg.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
 
     data_dir = os.path.join(REPO_ROOT, 'tabular', 'data', 'processed')
@@ -56,6 +57,10 @@ def main():
         'k_shot': k_shot,
         'device': device,
         'network_architecture': 'FcNet',
+        'num_hidden_units': fcnet_cfg.get('num_hidden_units', (40, 40)),
+        'activation': fcnet_cfg.get('activation', 'relu'),
+        'dropout_rate': fcnet_cfg.get('dropout_rate', 0.0),
+        'use_layernorm': fcnet_cfg.get('use_layernorm', False),
         'train_val_split_function': tabular_train_val_split,
         'num_inner_updates': 0,
         'inner_lr': 0.01,
@@ -109,7 +114,9 @@ def main():
         y_v = split_data['y_v'].to(device)
 
         logits = maml.prediction(x=x_v, adapted_hyper_net=model["hyper_net"], model=model)
-        y_pred = torch.softmax(input=logits, dim=1).argmax(dim=1).cpu().numpy()
+        probs = torch.softmax(input=logits, dim=1)
+        cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
+        y_pred = (probs[:, 1] >= cls_threshold).long().cpu().numpy()
         y_true = y_v.cpu().numpy()
 
         compute_metrics(

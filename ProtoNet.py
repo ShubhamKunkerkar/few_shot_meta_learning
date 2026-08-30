@@ -30,6 +30,13 @@ class ProtoNet(MLBaseClass):
             resume_epoch = self.config['resume_epoch']
 
         network_architectures = {
+            'FcNet': lambda: FcNet(
+                dim_output=None,
+                num_hidden_units=self.config.get('num_hidden_units', (40, 40)),
+                activation=self.config.get('activation', 'relu'),
+                dropout_rate=self.config.get('dropout_rate', 0.0),
+                use_layernorm=self.config.get('use_layernorm', False)
+            ),
             'CNN': lambda: CNN(dim_output=None, bn_affine=self.config['batchnorm'], stride_flag=self.config['strided']),
             'ResNet18': lambda: ResNet18(dim_output=None, bn_affine=self.config['batchnorm']),
             'LogisticRegression': lambda: LogisticRegression(dim_output=None)

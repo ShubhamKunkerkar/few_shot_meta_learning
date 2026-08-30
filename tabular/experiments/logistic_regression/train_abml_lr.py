@@ -2,26 +2,25 @@ import sys
 import os
 from pathlib import Path
 
-# Add repo root to sys.path so repo modules (Vampire2, Maml, etc.) are importable
+# Add repo root to sys.path
 REPO_ROOT = str(Path(__file__).resolve().parents[3])
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 import torch
-from Vampire2 import Vampire2
+from Abml import Abml
 from tabular.dataloader.TabularDataLoader import get_tabular_dataloader, tabular_train_val_split, load_config, resolve_device
 from _utils import FocalLoss
 
 # Resolve paths relative to repo root
 DATA_DIR = os.path.join(REPO_ROOT, 'tabular', 'data', 'processed')
-LOG_DIR = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_vampire_fcnet')
+LOG_DIR = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_abml_lr')
 
 
 def main():
     config_json = load_config()
     train_cfg = config_json.get('meta_training', config_json.get('training_hyperparameters', {}))
     prepro_cfg = config_json.get('preprocessing', config_json.get('meta_training_split', {}))
-    fcnet_cfg = config_json.get('fcnet', {})
     loss_cfg = train_cfg.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
 
     STEPS_PER_DAY = 144
@@ -45,11 +44,7 @@ def main():
         'device': device,
 
         # Architecture
-        'network_architecture': 'FcNet',
-        'num_hidden_units': fcnet_cfg.get('num_hidden_units', (40, 40)),
-        'activation': fcnet_cfg.get('activation', 'relu'),
-        'dropout_rate': fcnet_cfg.get('dropout_rate', 0.0),
-        'use_layernorm': fcnet_cfg.get('use_layernorm', False),
+        'network_architecture': 'LogisticRegression',
         'train_val_split_function': tabular_train_val_split,
 
         # Meta-learning hyperparameters
@@ -58,6 +53,10 @@ def main():
         'meta_lr': train_cfg.get('meta_lr', 1e-3),
         'KL_weight': train_cfg.get('KL_weight', 1e-6),
         'num_models': train_cfg.get('num_models', 4),
+        'gamma_prior_concentration': train_cfg.get('gamma_prior_concentration', 1.0),
+        'gamma_prior_rate': train_cfg.get('gamma_prior_rate', 0.01),
+        'normal_prior_loc': train_cfg.get('normal_prior_loc', 0.0),
+        'normal_prior_scale': train_cfg.get('normal_prior_scale', 1.0),
 
         # Gradient config
         'first_order': train_cfg.get('first_order', True),
@@ -71,17 +70,18 @@ def main():
         'minibatch': train_cfg.get('minibatch', 5),
         'minibatch_print': train_cfg.get('minibatch_print', 250),
         'logdir': LOG_DIR,
+        'classification_threshold': train_cfg.get('classification_threshold', 0.5),
 
         # Loss
         'loss_function': FocalLoss(alpha=loss_cfg.get('alpha', 0.25), gamma=loss_cfg.get('gamma', 2.0))
     }
 
-    print("Initializing VAMPIRE...")
-    vampire = Vampire2(config=config)
+    print("Initializing ABML LR...")
+    abml = Abml(config=config)
 
     print("Starting training...")
-    vampire.train(train_dataloader=train_dataloader,
-                  val_dataloader=val_dataloader)
+    abml.train(train_dataloader=train_dataloader,
+               val_dataloader=val_dataloader)
 
     # Meta-test if available
     test_path = os.path.join(DATA_DIR, 'dataset_prepro_routine_generated_test_tasks.pt')
@@ -90,11 +90,11 @@ def main():
         if len(test_tasks) > 0:
             test_dataloader = get_tabular_dataloader(test_path, device=device)
             print("\n--- Training complete. Running meta-test evaluation ---")
-            vampire.test(num_eps=min(50, len(test_tasks)), eps_dataloader=test_dataloader)
+            abml.test(num_eps=min(50, len(test_tasks)), eps_dataloader=test_dataloader)
         else:
             print("\n--- Training complete. (Meta-test split was 0, skipping meta-test) ---")
 
-    print("VAMPIRE training completed successfully!")
+    print("ABML LR training completed successfully!")
 
 
 if __name__ == '__main__':

@@ -18,9 +18,10 @@ LOG_DIR = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_maml_fcnet')
 
 
 def main():
-    cfg = load_config()
-    train_cfg = cfg.get('meta_training', cfg.get('training_hyperparameters', {}))
-    prepro_cfg = cfg.get('preprocessing', cfg.get('meta_training_split', {}))
+    config_json = load_config()
+    train_cfg = config_json.get('meta_training', config_json.get('training_hyperparameters', {}))
+    prepro_cfg = config_json.get('preprocessing', config_json.get('meta_training_split', {}))
+    fcnet_cfg = config_json.get('fcnet', {})
     loss_cfg = train_cfg.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
 
     STEPS_PER_DAY = 144
@@ -45,6 +46,10 @@ def main():
 
         # Architecture
         'network_architecture': 'FcNet',
+        'num_hidden_units': fcnet_cfg.get('num_hidden_units', (40, 40)),
+        'activation': fcnet_cfg.get('activation', 'relu'),
+        'dropout_rate': fcnet_cfg.get('dropout_rate', 0.0),
+        'use_layernorm': fcnet_cfg.get('use_layernorm', False),
         'train_val_split_function': tabular_train_val_split,
 
         # Meta-learning hyperparameters

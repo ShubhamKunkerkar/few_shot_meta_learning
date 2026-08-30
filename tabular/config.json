@@ -11,11 +11,18 @@
     "train_frac": 0.85,
     "val_frac": 0.15,
     "test_frac": 0,
-    "support_days": 1
+    "support_days": 1,
+    "tsls_cap": 1220.0
+  },
+  "fcnet": {
+    "num_hidden_units": [40, 40],
+    "activation": "relu",
+    "dropout_rate": 0.0,
+    "use_layernorm": false
   },
   "meta_training": {
-    "device": "cpu",
-    "num_epochs": 100,
+    "device": "cuda",
+    "num_epochs": 20,
     "num_episodes_per_epoch": 1000,
     "minibatch": 5,
     "minibatch_print": 250,
@@ -25,31 +32,50 @@
     "first_order": true,
     "num_models": 4,
     "KL_weight": 1e-06,
+    "classification_threshold": 0.5,
+    "svgd_bandwidth_scale": 1.0,
+    "svgd_repulsive_weight": 1.0,
+    "gamma_prior_concentration": 1.0,
+    "gamma_prior_rate": 0.01,
+    "normal_prior_loc": 0.0,
+    "normal_prior_scale": 1.0,
     "focal_loss": {
       "alpha": 0.25,
-      "gamma": 2
+      "gamma": 2.0
     }
   },
   "fast_adaptation_eval": {
-    "device": "cpu",
+    "device": "cuda",
     "support_days": 1,
     "inner_lr": 0.01,
     "num_inner_updates": 5,
     "num_models": 4,
     "KL_weight": 1e-06,
+    "classification_threshold": 0.5,
     "first_order": true,
+    "svgd_bandwidth_scale": 1.0,
+    "svgd_repulsive_weight": 1.0,
+    "gamma_prior_concentration": 1.0,
+    "gamma_prior_rate": 0.01,
+    "normal_prior_loc": 0.0,
+    "normal_prior_scale": 1.0,
     "focal_loss": {
       "alpha": 0.25,
-      "gamma": 2
+      "gamma": 2.0
     }
   },
   "cold_start_eval": {
-    "device": "cpu",
+    "device": "cuda",
     "support_days": 1,
     "num_models": 4,
+    "classification_threshold": 0.5,
+    "gamma_prior_concentration": 1.0,
+    "gamma_prior_rate": 0.01,
+    "normal_prior_loc": 0.0,
+    "normal_prior_scale": 1.0,
     "focal_loss": {
       "alpha": 0.25,
-      "gamma": 2
+      "gamma": 2.0
     }
   }
 }

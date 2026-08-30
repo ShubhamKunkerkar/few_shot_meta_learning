@@ -14,8 +14,13 @@ class Abml(MLBaseClass):
         self.hyper_net_class = NormalVariationalNet
 
         # prior parameters
-        self.gamma_prior = torch.distributions.gamma.Gamma(concentration=1, rate=0.01)
-        self.normal_prior = torch.distributions.normal.Normal(loc=0, scale=1)
+        concentration = float(self.config.get('gamma_prior_concentration', 1.0))
+        rate = float(self.config.get('gamma_prior_rate', 0.01))
+        norm_loc = float(self.config.get('normal_prior_loc', 0.0))
+        norm_scale = float(self.config.get('normal_prior_scale', 1.0))
+
+        self.gamma_prior = torch.distributions.gamma.Gamma(concentration=concentration, rate=rate)
+        self.normal_prior = torch.distributions.normal.Normal(loc=norm_loc, scale=norm_scale)
 
     def load_model(self, resume_epoch: int, eps_dataloader: torch.utils.data.DataLoader, **kwargs) -> dict:
         maml_temp = Maml(config=self.config)
@@ -142,6 +147,10 @@ class Abml(MLBaseClass):
         
         y_pred = y_pred / len(logits)
 
-        accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
+        cls_threshold = float(self.config.get('classification_threshold', 0.5))
+        if y_pred.shape[1] == 2:
+            accuracy = ((y_pred[:, 1] >= cls_threshold).long() == y_v).float().mean().item()
+        else:
+            accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
 
         return loss.item(), accuracy * 100

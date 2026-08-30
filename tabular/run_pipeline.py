@@ -78,7 +78,7 @@ def format_duration(seconds: float) -> str:
 
 
 def print_comparison_table(metrics: List[Dict[str, Any]]):
-    """Prints a structured ASCII side-by-side comparison table (Adapted vs. Cooldown) across test cases."""
+    """Prints a structured ASCII side-by-side comparison table (Adapted vs. Cold-Start) across test cases."""
     if not metrics:
         return
 
@@ -93,7 +93,7 @@ def print_comparison_table(metrics: List[Dict[str, Any]]):
         tc_metrics = [m for m in metrics if m["test_case"] == tc]
         print(f"\n[+] TEST CASE: {tc}")
         print("-" * 148)
-        print(f"{'Model':<9} | {'Architecture':<18} | {'------- ADAPTED (FAST ADAPTATION) -------':<55} | {'------ COOLDOWN (COLD START / ZERO SHOT) ------':<55}")
+        print(f"{'Model':<9} | {'Architecture':<18} | {'------- ADAPTED (FAST ADAPTATION) -------':<55} | {'------ COLD-START (ZERO-SHOT PRIOR) ------':<55}")
         print(f"{'':<9} | {'':<18} | {'Acc':<7} | {'MacroF1':<8} | {'C0 Prec/Rec':<16} | {'C1 Prec/Rec':<16} | {'Acc':<7} | {'MacroF1':<8} | {'C0 Prec/Rec':<16} | {'C1 Prec/Rec':<16}")
         print("-" * 148)
 
@@ -359,7 +359,7 @@ def main():
     parser.add_argument("--architecture", type=str, default=None,
                         help="Filter by architecture: FcNet or LogisticRegression.")
     parser.add_argument("--model", type=str, default=None,
-                        help="Filter by model algorithm: MAML, PLATIPUS, or VAMPIRE.")
+                        help="Filter by model algorithm: MAML, PLATIPUS, VAMPIRE, ABML, or BMAML.")
     parser.add_argument("--dry_run", action="store_true",
                         help="Preview execution sequence without running commands.")
     parser.add_argument("--continue_on_error", action="store_true",

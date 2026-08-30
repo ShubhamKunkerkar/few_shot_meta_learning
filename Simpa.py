@@ -177,7 +177,13 @@ class Simpa(MLBaseClass):
         # region BASE-NET
         # construct the base network base on the input "network_architecture"
         network_architectures = {
-            'FcNet': lambda: FcNet(dim_output=self.config['num_ways'], num_hidden_units=(40, 40)),
+            'FcNet': lambda: FcNet(
+                dim_output=self.config['num_ways'],
+                num_hidden_units=self.config.get('num_hidden_units', (40, 40)),
+                activation=self.config.get('activation', 'relu'),
+                dropout_rate=self.config.get('dropout_rate', 0.0),
+                use_layernorm=self.config.get('use_layernorm', False)
+            ),
             'CNN': lambda: CNN(dim_output=self.config['num_ways'], bn_affine=self.config['batchnorm'], stride_flag=self.config['strided']),
             'LogisticRegression': lambda: LogisticRegression(dim_output=self.config['num_ways'])
         }

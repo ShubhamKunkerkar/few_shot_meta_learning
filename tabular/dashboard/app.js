@@ -213,6 +213,12 @@ function applyPreset(preset) {
         case 'vampire':
           script.enabled = (stageId.includes('preprocessing') || model === 'vampire');
           break;
+        case 'abml':
+          script.enabled = (stageId.includes('preprocessing') || model === 'abml');
+          break;
+        case 'bmaml':
+          script.enabled = (stageId.includes('preprocessing') || model === 'bmaml');
+          break;
         case 'fcnet':
           script.enabled = (stageId.includes('preprocessing') || arch === 'fcnet');
           break;
@@ -326,7 +332,7 @@ function updateModelFilterPills(metrics) {
   if (!container) return;
   
   // Standard techniques plus any discovered from metrics
-  const defaultModels = ['MAML', 'PLATIPUS', 'VAMPIRE'];
+  const defaultModels = ['MAML', 'PLATIPUS', 'VAMPIRE', 'ABML', 'BMAML'];
   const metricsModels = sortedUnique(metrics.map(m => m.model));
   const allModels = Array.from(new Set([...defaultModels, ...metricsModels]));
 
@@ -611,7 +617,7 @@ function exportResultsCsv() {
   const headers = [
     'Test Case', 'Model', 'Architecture',
     'Adapted Acc (%)', 'Adapted Macro F1 (%)', 'Adapted C0 Prec (%)', 'Adapted C0 Rec (%)', 'Adapted C1 Prec (%)', 'Adapted C1 Rec (%)', 'Adapted C1 F1 (%)', 'Adapted Confusion Matrix',
-    'Cooldown Acc (%)', 'Cooldown Macro F1 (%)', 'Cooldown C0 Prec (%)', 'Cooldown C0 Rec (%)', 'Cooldown C1 Prec (%)', 'Cooldown C1 Rec (%)', 'Cooldown C1 F1 (%)', 'Cooldown Confusion Matrix'
+    'Cold-Start Acc (%)', 'Cold-Start Macro F1 (%)', 'Cold-Start C0 Prec (%)', 'Cold-Start C0 Rec (%)', 'Cold-Start C1 Prec (%)', 'Cold-Start C1 Rec (%)', 'Cold-Start C1 F1 (%)', 'Cold-Start Confusion Matrix'
   ];
 
   const rows = Object.values(grouped).map(item => {
@@ -694,10 +700,17 @@ const FACTORY_DEFAULT_CONFIG = {
     train_frac: 0.85,
     val_frac: 0.15,
     test_frac: 0,
-    support_days: 1
+    support_days: 1,
+    tsls_cap: 1220.0
+  },
+  fcnet: {
+    num_hidden_units: [40, 40],
+    activation: "relu",
+    dropout_rate: 0.0,
+    use_layernorm: false
   },
   meta_training: {
-    device: "cpu",
+    device: "cuda",
     num_epochs: 20,
     num_episodes_per_epoch: 1000,
     minibatch: 5,
@@ -708,28 +721,47 @@ const FACTORY_DEFAULT_CONFIG = {
     first_order: true,
     num_models: 4,
     KL_weight: 0.000001,
+    classification_threshold: 0.5,
+    svgd_bandwidth_scale: 1.0,
+    svgd_repulsive_weight: 1.0,
+    gamma_prior_concentration: 1.0,
+    gamma_prior_rate: 0.01,
+    normal_prior_loc: 0.0,
+    normal_prior_scale: 1.0,
     focal_loss: {
       alpha: 0.25,
       gamma: 2.0
     }
   },
   fast_adaptation_eval: {
-    device: "cpu",
+    device: "cuda",
     support_days: 1,
     inner_lr: 0.01,
     num_inner_updates: 5,
     num_models: 4,
     KL_weight: 0.000001,
+    classification_threshold: 0.5,
     first_order: true,
+    svgd_bandwidth_scale: 1.0,
+    svgd_repulsive_weight: 1.0,
+    gamma_prior_concentration: 1.0,
+    gamma_prior_rate: 0.01,
+    normal_prior_loc: 0.0,
+    normal_prior_scale: 1.0,
     focal_loss: {
       alpha: 0.25,
       gamma: 2.0
     }
   },
   cold_start_eval: {
-    device: "cpu",
+    device: "cuda",
     support_days: 1,
     num_models: 4,
+    classification_threshold: 0.5,
+    gamma_prior_concentration: 1.0,
+    gamma_prior_rate: 0.01,
+    normal_prior_loc: 0.0,
+    normal_prior_scale: 1.0,
     focal_loss: {
       alpha: 0.25,
       gamma: 2.0
@@ -759,7 +791,28 @@ function populateConfigForm(cfg) {
   document.getElementById('cfgPreproValFrac').value = p.val_frac !== undefined ? p.val_frac : (split.val_frac !== undefined ? split.val_frac : 0.15);
   document.getElementById('cfgPreproTestFrac').value = p.test_frac !== undefined ? p.test_frac : (split.test_frac !== undefined ? split.test_frac : 0);
 
-  // 2. Meta-Training
+  const elPreproTsls = document.getElementById('cfgPreproTslsCap');
+  if (elPreproTsls) elPreproTsls.value = p.tsls_cap !== undefined ? p.tsls_cap : 1220.0;
+
+  // 2. FcNet Architecture
+  const fc = cfg.fcnet || {};
+  const hiddenUnits = Array.isArray(fc.num_hidden_units) ? fc.num_hidden_units.join(', ') : (fc.num_hidden_units || '40, 40');
+  const elHidden = document.getElementById('cfgFcnetHiddenUnits');
+  if (elHidden) elHidden.value = hiddenUnits;
+
+  const elAct = document.getElementById('cfgFcnetActivation');
+  if (elAct) elAct.value = fc.activation || 'relu';
+
+  const elDrop = document.getElementById('cfgFcnetDropout');
+  if (elDrop) elDrop.value = fc.dropout_rate !== undefined ? fc.dropout_rate : 0.0;
+
+  const chkLayernorm = document.getElementById('cfgFcnetLayernorm');
+  if (chkLayernorm) {
+    chkLayernorm.checked = Boolean(fc.use_layernorm);
+    updateFcnetLayernormLabel();
+  }
+
+  // 3. Meta-Training
   const tr = cfg.meta_training || cfg.training_hyperparameters || {};
   const trFocal = tr.focal_loss || {};
   const elTrainDev = document.getElementById('cfgTrainDevice');
@@ -774,8 +827,23 @@ function populateConfigForm(cfg) {
   document.getElementById('cfgTrainInnerLr').value = tr.inner_lr !== undefined ? tr.inner_lr : 0.01;
   document.getElementById('cfgTrainNumModels').value = tr.num_models !== undefined ? tr.num_models : 4;
   document.getElementById('cfgTrainKlWeight').value = tr.KL_weight !== undefined ? tr.KL_weight : 0.000001;
+  const elTrainThresh = document.getElementById('cfgTrainThreshold');
+  if (elTrainThresh) elTrainThresh.value = tr.classification_threshold !== undefined ? tr.classification_threshold : 0.5;
   document.getElementById('cfgTrainFocalAlpha').value = trFocal.alpha !== undefined ? trFocal.alpha : 0.25;
   document.getElementById('cfgTrainFocalGamma').value = trFocal.gamma !== undefined ? trFocal.gamma : 2.0;
+
+  const elTrainSvgdBandwidth = document.getElementById('cfgTrainSvgdBandwidth');
+  if (elTrainSvgdBandwidth) elTrainSvgdBandwidth.value = tr.svgd_bandwidth_scale !== undefined ? tr.svgd_bandwidth_scale : 1.0;
+  const elTrainSvgdRepulsive = document.getElementById('cfgTrainSvgdRepulsive');
+  if (elTrainSvgdRepulsive) elTrainSvgdRepulsive.value = tr.svgd_repulsive_weight !== undefined ? tr.svgd_repulsive_weight : 1.0;
+  const elTrainGammaConc = document.getElementById('cfgTrainGammaConcentration');
+  if (elTrainGammaConc) elTrainGammaConc.value = tr.gamma_prior_concentration !== undefined ? tr.gamma_prior_concentration : 1.0;
+  const elTrainGammaRate = document.getElementById('cfgTrainGammaRate');
+  if (elTrainGammaRate) elTrainGammaRate.value = tr.gamma_prior_rate !== undefined ? tr.gamma_prior_rate : 0.01;
+  const elTrainNormLoc = document.getElementById('cfgTrainNormLoc');
+  if (elTrainNormLoc) elTrainNormLoc.value = tr.normal_prior_loc !== undefined ? tr.normal_prior_loc : 0.0;
+  const elTrainNormScale = document.getElementById('cfgTrainNormScale');
+  if (elTrainNormScale) elTrainNormScale.value = tr.normal_prior_scale !== undefined ? tr.normal_prior_scale : 1.0;
 
   const chkTrainFirstOrder = document.getElementById('cfgTrainFirstOrder');
   if (chkTrainFirstOrder) {
@@ -783,7 +851,7 @@ function populateConfigForm(cfg) {
     updateTrainFirstOrderLabel();
   }
 
-  // 3. Fast Adaptation Eval
+  // 4. Fast Adaptation Eval
   const fa = cfg.fast_adaptation_eval || cfg.test_cases || {};
   const faFocal = fa.focal_loss || trFocal || {};
   const elAdaptDev = document.getElementById('cfgAdaptDevice');
@@ -795,8 +863,15 @@ function populateConfigForm(cfg) {
   document.getElementById('cfgAdaptNumModels').value = fa.num_models !== undefined ? fa.num_models : (tr.num_models || 4);
   const elAdaptKl = document.getElementById('cfgAdaptKlWeight');
   if (elAdaptKl) elAdaptKl.value = fa.KL_weight !== undefined ? fa.KL_weight : (tr.KL_weight !== undefined ? tr.KL_weight : 0.000001);
+  const elAdaptThresh = document.getElementById('cfgAdaptThreshold');
+  if (elAdaptThresh) elAdaptThresh.value = fa.classification_threshold !== undefined ? fa.classification_threshold : 0.5;
   document.getElementById('cfgAdaptFocalAlpha').value = faFocal.alpha !== undefined ? faFocal.alpha : 0.25;
   document.getElementById('cfgAdaptFocalGamma').value = faFocal.gamma !== undefined ? faFocal.gamma : 2.0;
+
+  const elAdaptSvgdBandwidth = document.getElementById('cfgAdaptSvgdBandwidth');
+  if (elAdaptSvgdBandwidth) elAdaptSvgdBandwidth.value = fa.svgd_bandwidth_scale !== undefined ? fa.svgd_bandwidth_scale : 1.0;
+  const elAdaptSvgdRepulsive = document.getElementById('cfgAdaptSvgdRepulsive');
+  if (elAdaptSvgdRepulsive) elAdaptSvgdRepulsive.value = fa.svgd_repulsive_weight !== undefined ? fa.svgd_repulsive_weight : 1.0;
 
   const chkAdaptFirstOrder = document.getElementById('cfgAdaptFirstOrder');
   if (chkAdaptFirstOrder) {
@@ -804,7 +879,7 @@ function populateConfigForm(cfg) {
     updateAdaptFirstOrderLabel();
   }
 
-  // 4. Cold-Start Eval
+  // 5. Cold-Start Eval
   const cs = cfg.cold_start_eval || {};
   const csFocal = cs.focal_loss || trFocal || {};
   const elColdDev = document.getElementById('cfgColdDevice');
@@ -812,10 +887,20 @@ function populateConfigForm(cfg) {
 
   document.getElementById('cfgColdSupportDays').value = cs.support_days !== undefined ? cs.support_days : 1;
   document.getElementById('cfgColdNumModels').value = cs.num_models !== undefined ? cs.num_models : (tr.num_models || 4);
+  const elColdThresh = document.getElementById('cfgColdThreshold');
+  if (elColdThresh) elColdThresh.value = cs.classification_threshold !== undefined ? cs.classification_threshold : 0.5;
   document.getElementById('cfgColdFocalAlpha').value = csFocal.alpha !== undefined ? csFocal.alpha : 0.25;
   document.getElementById('cfgColdFocalGamma').value = csFocal.gamma !== undefined ? csFocal.gamma : 2.0;
 
   updateSplitVisualizer();
+}
+
+function updateFcnetLayernormLabel() {
+  const chk = document.getElementById('cfgFcnetLayernorm');
+  const lbl = document.getElementById('lblFcnetLayernorm');
+  if (chk && lbl) {
+    lbl.textContent = chk.checked ? 'Enabled' : 'Disabled';
+  }
 }
 
 function updateTrainFirstOrderLabel() {
@@ -863,24 +948,29 @@ function updateSplitVisualizer() {
     return;
   }
 
-  const pTrain = Math.round((train / total) * 100);
-  const pVal = Math.round((val / total) * 100);
-  const pTest = Math.max(0, 100 - pTrain - pVal);
+  const trainPct = Math.round((train / total) * 100);
+  const valPct = Math.round((val / total) * 100);
+  const testPct = Math.max(0, 100 - trainPct - valPct);
 
-  barTrain.style.width = `${pTrain}%`;
-  barTrain.textContent = pTrain > 0 ? `Train ${pTrain}%` : '';
+  barTrain.style.width = `${trainPct}%`;
+  barTrain.textContent = `Train ${trainPct}%`;
 
-  barVal.style.width = `${pVal}%`;
-  barVal.textContent = pVal > 0 ? `Val ${pVal}%` : '';
+  barVal.style.width = `${valPct}%`;
+  barVal.textContent = `Val ${valPct}%`;
 
-  barTest.style.width = `${pTest}%`;
-  barTest.textContent = pTest > 0 ? `Test ${pTest}%` : '';
+  barTest.style.width = `${testPct}%`;
+  barTest.textContent = `Test ${testPct}%`;
 }
 
 ['cfgPreproTrainFrac', 'cfgPreproValFrac', 'cfgPreproTestFrac'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', updateSplitVisualizer);
 });
+
+const chkFcnetLayernormEl = document.getElementById('cfgFcnetLayernorm');
+if (chkFcnetLayernormEl) {
+  chkFcnetLayernormEl.addEventListener('change', updateFcnetLayernormLabel);
+}
 
 const chkTrainFirstOrderEl = document.getElementById('cfgTrainFirstOrder');
 if (chkTrainFirstOrderEl) {
@@ -893,6 +983,12 @@ if (chkAdaptFirstOrderEl) {
 }
 
 async function saveConfig() {
+  const hiddenUnitsStr = document.getElementById('cfgFcnetHiddenUnits') ? document.getElementById('cfgFcnetHiddenUnits').value : '40, 40';
+  const parsedHiddenUnits = hiddenUnitsStr
+    .split(',')
+    .map(s => parseInt(s.trim(), 10))
+    .filter(n => !isNaN(n) && n > 0);
+
   configData = {
     constant: {
       steps_per_day: 144,
@@ -906,7 +1002,14 @@ async function saveConfig() {
       train_frac: getNumberVal('cfgPreproTrainFrac', 0.85),
       val_frac: getNumberVal('cfgPreproValFrac', 0.15),
       test_frac: getNumberVal('cfgPreproTestFrac', 0),
-      support_days: getNumberVal('cfgPreproSupportDays', 1)
+      support_days: getNumberVal('cfgPreproSupportDays', 1),
+      tsls_cap: getNumberVal('cfgPreproTslsCap', 1220.0)
+    },
+    fcnet: {
+      num_hidden_units: parsedHiddenUnits.length > 0 ? parsedHiddenUnits : [40, 40],
+      activation: document.getElementById('cfgFcnetActivation') ? document.getElementById('cfgFcnetActivation').value : 'relu',
+      dropout_rate: getNumberVal('cfgFcnetDropout', 0.0),
+      use_layernorm: document.getElementById('cfgFcnetLayernorm') ? document.getElementById('cfgFcnetLayernorm').checked : false
     },
     meta_training: {
       device: document.getElementById('cfgTrainDevice') ? document.getElementById('cfgTrainDevice').value : "cuda",
@@ -920,6 +1023,13 @@ async function saveConfig() {
       first_order: document.getElementById('cfgTrainFirstOrder') ? document.getElementById('cfgTrainFirstOrder').checked : true,
       num_models: getNumberVal('cfgTrainNumModels', 4),
       KL_weight: getNumberVal('cfgTrainKlWeight', 0.000001),
+      classification_threshold: getNumberVal('cfgTrainThreshold', 0.5),
+      svgd_bandwidth_scale: getNumberVal('cfgTrainSvgdBandwidth', 1.0),
+      svgd_repulsive_weight: getNumberVal('cfgTrainSvgdRepulsive', 1.0),
+      gamma_prior_concentration: getNumberVal('cfgTrainGammaConcentration', 1.0),
+      gamma_prior_rate: getNumberVal('cfgTrainGammaRate', 0.01),
+      normal_prior_loc: getNumberVal('cfgTrainNormLoc', 0.0),
+      normal_prior_scale: getNumberVal('cfgTrainNormScale', 1.0),
       focal_loss: {
         alpha: getNumberVal('cfgTrainFocalAlpha', 0.25),
         gamma: getNumberVal('cfgTrainFocalGamma', 2.0)
@@ -932,7 +1042,14 @@ async function saveConfig() {
       num_inner_updates: getNumberVal('cfgAdaptInnerUpdates', 5),
       num_models: getNumberVal('cfgAdaptNumModels', 4),
       KL_weight: getNumberVal('cfgAdaptKlWeight', 0.000001),
+      classification_threshold: getNumberVal('cfgAdaptThreshold', 0.5),
       first_order: document.getElementById('cfgAdaptFirstOrder') ? document.getElementById('cfgAdaptFirstOrder').checked : true,
+      svgd_bandwidth_scale: getNumberVal('cfgAdaptSvgdBandwidth', 1.0),
+      svgd_repulsive_weight: getNumberVal('cfgAdaptSvgdRepulsive', 1.0),
+      gamma_prior_concentration: getNumberVal('cfgTrainGammaConcentration', 1.0),
+      gamma_prior_rate: getNumberVal('cfgTrainGammaRate', 0.01),
+      normal_prior_loc: getNumberVal('cfgTrainNormLoc', 0.0),
+      normal_prior_scale: getNumberVal('cfgTrainNormScale', 1.0),
       focal_loss: {
         alpha: getNumberVal('cfgAdaptFocalAlpha', 0.25),
         gamma: getNumberVal('cfgAdaptFocalGamma', 2.0)
@@ -942,6 +1059,11 @@ async function saveConfig() {
       device: document.getElementById('cfgColdDevice') ? document.getElementById('cfgColdDevice').value : "cuda",
       support_days: getNumberVal('cfgColdSupportDays', 1),
       num_models: getNumberVal('cfgColdNumModels', 4),
+      classification_threshold: getNumberVal('cfgColdThreshold', 0.5),
+      gamma_prior_concentration: getNumberVal('cfgTrainGammaConcentration', 1.0),
+      gamma_prior_rate: getNumberVal('cfgTrainGammaRate', 0.01),
+      normal_prior_loc: getNumberVal('cfgTrainNormLoc', 0.0),
+      normal_prior_scale: getNumberVal('cfgTrainNormScale', 1.0),
       focal_loss: {
         alpha: getNumberVal('cfgColdFocalAlpha', 0.25),
         gamma: getNumberVal('cfgColdFocalGamma', 2.0)

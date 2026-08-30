@@ -4,41 +4,66 @@ import torchvision
 import typing
 
 class FcNet(torch.nn.Module):
-    """Simple fully connected network
-    """
-    def __init__(self, dim_output: typing.Optional[int] = None, num_hidden_units: typing.List[int] = (32, 32)) -> None:
-        """
-        Args:
-
-        """
+    """Simple fully connected network with customizable topology, activations, and regularization."""
+    def __init__(
+        self,
+        dim_output: typing.Optional[int] = None,
+        num_hidden_units: typing.Union[typing.List[int], typing.Tuple[int, ...]] = (40, 40),
+        activation: str = "relu",
+        dropout_rate: float = 0.0,
+        use_layernorm: bool = False
+    ) -> None:
         super(FcNet, self).__init__()
 
         self.dim_output = dim_output
-        self.num_hidden_units = num_hidden_units
+        self.num_hidden_units = list(num_hidden_units)
+        self.activation = activation
+        self.dropout_rate = float(dropout_rate)
+        self.use_layernorm = bool(use_layernorm)
 
         self.fc_net = self.construct_network()
 
-    def construct_network(self):
-        """
-        """
-        net = torch.nn.Sequential()
-        net.add_module(
-            name='layer0',
-            module=torch.nn.Sequential(
-                torch.nn.LazyLinear(out_features=self.num_hidden_units[0]),
-                torch.nn.ReLU()
-            )
-        )
+    def _get_activation(self) -> torch.nn.Module:
+        act = str(self.activation).strip().lower()
+        if act in ("leaky_relu", "leakyReLU", "leaky"):
+            return torch.nn.LeakyReLU()
+        elif act == "elu":
+            return torch.nn.ELU()
+        elif act == "gelu":
+            return torch.nn.GELU()
+        elif act == "tanh":
+            return torch.nn.Tanh()
+        return torch.nn.ReLU()
 
-        for i in range(1, len(self.num_hidden_units)):
+    def construct_network(self):
+        net = torch.nn.Sequential()
+        if len(self.num_hidden_units) == 0:
             net.add_module(
-                name='layer{0:d}'.format(i),
-                module=torch.nn.Sequential(
-                    torch.nn.Linear(in_features=self.num_hidden_units[i - 1], out_features=self.num_hidden_units[i]),
-                    torch.nn.ReLU()
-                )
+                name='classifier',
+                module=torch.nn.LazyLinear(out_features=self.dim_output) if self.dim_output is not None else torch.nn.Identity()
             )
+            return net
+
+        # Layer 0
+        l0_modules = [torch.nn.LazyLinear(out_features=self.num_hidden_units[0])]
+        if self.use_layernorm:
+            l0_modules.append(torch.nn.LayerNorm(self.num_hidden_units[0]))
+        l0_modules.append(self._get_activation())
+        if self.dropout_rate > 0.0:
+            l0_modules.append(torch.nn.Dropout(p=self.dropout_rate))
+        net.add_module(name='layer0', module=torch.nn.Sequential(*l0_modules))
+
+        # Subsequent hidden layers
+        for i in range(1, len(self.num_hidden_units)):
+            li_modules = [torch.nn.Linear(in_features=self.num_hidden_units[i - 1], out_features=self.num_hidden_units[i])]
+            if self.use_layernorm:
+                li_modules.append(torch.nn.LayerNorm(self.num_hidden_units[i]))
+            li_modules.append(self._get_activation())
+            if self.dropout_rate > 0.0:
+                li_modules.append(torch.nn.Dropout(p=self.dropout_rate))
+            net.add_module(name='layer{0:d}'.format(i), module=torch.nn.Sequential(*li_modules))
         
+        # Classifier output layer
         net.add_module(
             name='classifier',
             module=torch.nn.Linear(in_features=self.num_hidden_units[-1], out_features=self.dim_output) if self.dim_output is not None \
@@ -48,7 +73,6 @@ class FcNet(torch.nn.Module):
         return net
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """"""
         return self.fc_net(x)
 
 class CNN(torch.nn.Module):

@@ -112,7 +112,8 @@ def main():
         probs_list = [torch.softmax(l, dim=1) for l in logits_list]
         avg_probs = torch.stack(probs_list).mean(dim=0)
 
-        y_pred = avg_probs.argmax(dim=1).cpu().numpy()
+        cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
+        y_pred = (avg_probs[:, 1] >= cls_threshold).long().cpu().numpy()
         y_true = y_v.cpu().numpy()
 
         compute_metrics(

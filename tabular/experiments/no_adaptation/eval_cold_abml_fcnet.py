@@ -18,16 +18,17 @@ from _utils import FocalLoss
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate VAMPIRE + LogisticRegression on all test cases.")
+    parser = argparse.ArgumentParser(description="Evaluate ABML + FcNet (Cold Start) on all test cases.")
     parser.add_argument("--test_case", type=str, default=None, help="Optional specific test case name/file to evaluate.")
     args = parser.parse_args()
 
     cfg = load_config()
-    eval_cfg = cfg.get('fast_adaptation_eval', cfg.get('test_cases', {}))
-    loss_cfg = eval_cfg.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
+    cold_cfg = cfg.get('cold_start_eval', cfg.get('test_cases', {}))
+    fcnet_cfg = cfg.get('fcnet', {})
+    loss_cfg = cold_cfg.get('focal_loss', {'alpha': 0.25, 'gamma': 2.0})
 
     data_dir = os.path.join(REPO_ROOT, 'tabular', 'data', 'processed')
-    log_dir = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_vampire_lr')
+    log_dir = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_abml_fcnet')
     all_task_files = sorted(glob.glob(os.path.join(data_dir, "*_tasks.pt")))
     test_case_files = [f for f in all_task_files if "dataset_prepro" not in os.path.basename(f)]
 
@@ -37,7 +38,7 @@ def main():
     if not test_case_files:
         raise FileNotFoundError(f"No test case .pt files found in: {data_dir}. Run Preprocessing.py first.")
 
-    print(f"Found {len(test_case_files)} test case(s) for evaluation:")
+    print(f"Found {len(test_case_files)} test case(s) for zero-shot evaluation:")
     for f in test_case_files:
         print(f"  - {os.path.basename(f)}")
 
@@ -47,22 +48,26 @@ def main():
     print(f"\n[AUTO-CHECKPOINT] Automatically selected best model: Epoch {best_epoch}{acc_str}")
 
     STEPS_PER_DAY = 144
-    support_days = eval_cfg.get('support_days', 1)
+    support_days = cold_cfg.get('support_days', 1)
     k_shot = support_days * STEPS_PER_DAY
-    device = resolve_device(eval_cfg.get('device', 'cuda'))
+    device = resolve_device(cold_cfg.get('device', 'cuda'))
 
     config = {
         'num_ways': 2,
         'k_shot': k_shot,
         'device': device,
-        'network_architecture': 'LogisticRegression',
+        'network_architecture': 'FcNet',
+        'num_hidden_units': fcnet_cfg.get('num_hidden_units', (40, 40)),
+        'activation': fcnet_cfg.get('activation', 'relu'),
+        'dropout_rate': fcnet_cfg.get('dropout_rate', 0.0),
+        'use_layernorm': fcnet_cfg.get('use_layernorm', False),
         'train_val_split_function': tabular_train_val_split,
-        'num_inner_updates': eval_cfg.get('num_inner_updates', 5),
-        'inner_lr': eval_cfg.get('inner_lr', 0.01),
+        'num_inner_updates': 0,
+        'inner_lr': 0.01,
         'meta_lr': 1e-3,
-        'KL_weight': eval_cfg.get('KL_weight', 1e-6),
-        'num_models': eval_cfg.get('num_models', 4),
-        'first_order': eval_cfg.get('first_order', True),
+        'KL_weight': 1e-6,
+        'num_models': cold_cfg.get('num_models', 4),
+        'first_order': True,
         'train_flag': False,
         'resume_epoch': best_epoch,
         'num_epochs': best_epoch,
@@ -74,9 +79,9 @@ def main():
         'loss_function': FocalLoss(alpha=loss_cfg.get('alpha', 0.25), gamma=loss_cfg.get('gamma', 2.0))
     }
 
-    print(f"Initializing VAMPIRE on {device} and loading pre-trained model (Epoch {best_epoch})...")
-    from Vampire2 import Vampire2
-    vampire = Vampire2(config=config)
+    print(f"Initializing ABML on {device} and loading pre-trained model (Epoch {best_epoch})...")
+    from Abml import Abml
+    abml = Abml(config=config)
 
     dummy_tasks = torch.load(test_case_files[0], weights_only=False)
     dummy_ep = [{
@@ -86,7 +91,7 @@ def main():
         "y_q": dummy_tasks[0]['y_q'].unsqueeze(0),
         "task_id": int(dummy_tasks[0].get('task_id', 1))
     }]
-    model = vampire.load_model(resume_epoch=best_epoch, hyper_net_class=vampire.hyper_net_class, eps_dataloader=dummy_ep)
+    model = abml.load_model(resume_epoch=best_epoch, hyper_net_class=abml.hyper_net_class, eps_dataloader=dummy_ep)
 
     for tc_path in test_case_files:
         tc_name = os.path.basename(tc_path)
@@ -105,17 +110,14 @@ def main():
         }]
 
         split_data = tabular_train_val_split(ep[0])
-        x_t = split_data['x_t'].to(device)
-        y_t = split_data['y_t'].to(device)
         x_v = split_data['x_v'].to(device)
         y_v = split_data['y_v'].to(device)
 
-        adapted_hyper_net = vampire.adaptation(x=x_t, y=y_t, model=model)
-        logits_list = vampire.prediction(x=x_v, adapted_hyper_net=adapted_hyper_net, model=model)
+        logits_list = abml.prediction(x=x_v, adapted_hyper_net=model["hyper_net"], model=model)
         probs_list = [torch.softmax(l, dim=1) for l in logits_list]
         avg_probs = torch.stack(probs_list).mean(dim=0)
 
-        cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
+        cls_threshold = float(cold_cfg.get("classification_threshold", 0.5))
         y_pred = (avg_probs[:, 1] >= cls_threshold).long().cpu().numpy()
         y_true = y_v.cpu().numpy()
 
@@ -124,15 +126,15 @@ def main():
             y_pred=y_pred,
             test_case=tc_name,
             task_id=task_id,
-            model="VAMPIRE",
-            architecture="LogisticRegression",
-            mode="Fast Adaptation",
+            model="ABML",
+            architecture="FcNet",
+            mode="Cold Start",
             query_size=list(x_q.shape)
         )
 
         print("\n" + "="*60)
-        print(f"EVALUATION: {tc_name} (Task ID {task_id}) [VAMPIRE LR]")
-        print(f"Support: {list(x_s.shape)} | Query: {list(x_q.shape)}")
+        print(f"EVALUATION (COLD START): {tc_name} (Task ID {task_id}) [ABML FCNet]")
+        print(f"Query Size: {list(x_q.shape)}")
         print("="*60)
         print("Confusion Matrix:")
         print(confusion_matrix(y_true, y_pred))
@@ -141,5 +143,5 @@ def main():
         print("="*60)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -54,7 +54,8 @@ class Bmaml(MLBaseClass):
 
             kernel_matrix, grad_kernel, _ = self.get_kernel(params=q_params)
 
-            q_params = q_params - self.config["inner_lr"] * (torch.matmul(kernel_matrix, distance_NLL) - grad_kernel)
+            repulsive_weight = float(self.config.get('svgd_repulsive_weight', 1.0))
+            q_params = q_params - self.config["inner_lr"] * (torch.matmul(kernel_matrix, distance_NLL) - repulsive_weight * grad_kernel)
 
             # update hyper-net
             f_hyper_net.update_params(params=[q_params[i, :] for i in range(self.config["num_models"])])
@@ -106,7 +107,11 @@ class Bmaml(MLBaseClass):
         
         y_pred = y_pred / len(logits)
 
-        accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
+        cls_threshold = float(self.config.get('classification_threshold', 0.5))
+        if y_pred.shape[1] == 2:
+            accuracy = ((y_pred[:, 1] >= cls_threshold).long() == y_v).float().mean().item()
+        else:
+            accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
 
         return loss.item(), accuracy * 100
 
@@ -128,7 +133,8 @@ class Bmaml(MLBaseClass):
         else:
             median_dist = torch.tensor(1.0, device=params.device)
 
-        h = median_dist / np.log(max(2, self.config["num_models"]))
+        bandwidth_scale = float(self.config.get('svgd_bandwidth_scale', 1.0))
+        h = (median_dist / np.log(max(2, self.config["num_models"]))) * bandwidth_scale
         h = torch.clamp(h, min=1e-5)
 
         kernel_matrix = torch.exp(-pairwise_d_matrix / h)

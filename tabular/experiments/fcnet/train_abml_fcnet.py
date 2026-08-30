@@ -2,19 +2,19 @@ import sys
 import os
 from pathlib import Path
 
-# Add repo root to sys.path so repo modules (Vampire2, Maml, etc.) are importable
+# Add repo root to sys.path so repo modules (Abml, Maml, etc.) are importable
 REPO_ROOT = str(Path(__file__).resolve().parents[3])
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 import torch
-from Vampire2 import Vampire2
+from Abml import Abml
 from tabular.dataloader.TabularDataLoader import get_tabular_dataloader, tabular_train_val_split, load_config, resolve_device
 from _utils import FocalLoss
 
 # Resolve paths relative to repo root
 DATA_DIR = os.path.join(REPO_ROOT, 'tabular', 'data', 'processed')
-LOG_DIR = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_vampire_fcnet')
+LOG_DIR = os.path.join(REPO_ROOT, 'tabular', 'outputs', 'logs_abml_fcnet')
 
 
 def main():
@@ -58,6 +58,10 @@ def main():
         'meta_lr': train_cfg.get('meta_lr', 1e-3),
         'KL_weight': train_cfg.get('KL_weight', 1e-6),
         'num_models': train_cfg.get('num_models', 4),
+        'gamma_prior_concentration': train_cfg.get('gamma_prior_concentration', 1.0),
+        'gamma_prior_rate': train_cfg.get('gamma_prior_rate', 0.01),
+        'normal_prior_loc': train_cfg.get('normal_prior_loc', 0.0),
+        'normal_prior_scale': train_cfg.get('normal_prior_scale', 1.0),
 
         # Gradient config
         'first_order': train_cfg.get('first_order', True),
@@ -71,17 +75,18 @@ def main():
         'minibatch': train_cfg.get('minibatch', 5),
         'minibatch_print': train_cfg.get('minibatch_print', 250),
         'logdir': LOG_DIR,
+        'classification_threshold': train_cfg.get('classification_threshold', 0.5),
 
         # Loss
         'loss_function': FocalLoss(alpha=loss_cfg.get('alpha', 0.25), gamma=loss_cfg.get('gamma', 2.0))
     }
 
-    print("Initializing VAMPIRE...")
-    vampire = Vampire2(config=config)
+    print("Initializing ABML...")
+    abml = Abml(config=config)
 
     print("Starting training...")
-    vampire.train(train_dataloader=train_dataloader,
-                  val_dataloader=val_dataloader)
+    abml.train(train_dataloader=train_dataloader,
+               val_dataloader=val_dataloader)
 
     # Meta-test if available
     test_path = os.path.join(DATA_DIR, 'dataset_prepro_routine_generated_test_tasks.pt')
@@ -90,11 +95,11 @@ def main():
         if len(test_tasks) > 0:
             test_dataloader = get_tabular_dataloader(test_path, device=device)
             print("\n--- Training complete. Running meta-test evaluation ---")
-            vampire.test(num_eps=min(50, len(test_tasks)), eps_dataloader=test_dataloader)
+            abml.test(num_eps=min(50, len(test_tasks)), eps_dataloader=test_dataloader)
         else:
             print("\n--- Training complete. (Meta-test split was 0, skipping meta-test) ---")
 
-    print("VAMPIRE training completed successfully!")
+    print("ABML training completed successfully!")
 
 
 if __name__ == '__main__':

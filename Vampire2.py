@@ -112,7 +112,11 @@ class Vampire2(MLBaseClass):
         
         y_pred = y_pred / len(logits)
 
-        accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
+        cls_threshold = float(self.config.get('classification_threshold', 0.5))
+        if y_pred.shape[1] == 2:
+            accuracy = ((y_pred[:, 1] >= cls_threshold).long() == y_v).float().mean().item()
+        else:
+            accuracy = (y_pred.argmax(dim=1) == y_v).float().mean().item()
 
         return loss.item(), accuracy * 100
 
