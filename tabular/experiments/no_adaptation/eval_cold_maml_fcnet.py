@@ -43,7 +43,7 @@ def main():
         print(f"  - {os.path.basename(f)}")
 
     # Automatically find best checkpoint epoch based on peak validation accuracy
-    checkpoint_mode = eval_cfg.get('checkpoint_mode', 'best')
+    checkpoint_mode = cold_cfg.get('checkpoint_mode', 'best')
     best_epoch, best_ckpt_path, best_val_acc = find_best_checkpoint(log_dir, mode=checkpoint_mode)
     acc_str = f" (Peak Val Acc: {best_val_acc:.2f}%)" if best_val_acc is not None else ""
     print(f"\n[AUTO-CHECKPOINT] Automatically selected best model: Epoch {best_epoch}{acc_str}")
@@ -116,7 +116,7 @@ def main():
 
         logits = maml.prediction(x=x_v, adapted_hyper_net=model["hyper_net"], model=model)
         probs = torch.softmax(input=logits, dim=1)
-        cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
+        cls_threshold = float(cold_cfg.get("classification_threshold", 0.5))
         y_pred = (probs[:, 1] >= cls_threshold).long().cpu().numpy()
         y_true = y_v.cpu().numpy()
 

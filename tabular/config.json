@@ -25,7 +25,7 @@
   },
   "meta_training": {
     "device": "cpu",
-    "num_epochs": 35,
+    "num_epochs": 100,
     "num_episodes_per_epoch": 1000,
     "minibatch": 5,
     "minibatch_print": 250,
@@ -35,7 +35,7 @@
     "first_order": true,
     "num_models": 8,
     "KL_weight": 1e-06,
-    "classification_threshold": 0.25,
+    "classification_threshold": 0.35,
     "svgd_bandwidth_scale": 1,
     "svgd_repulsive_weight": 1,
     "gamma_prior_concentration": 1,
@@ -43,7 +43,7 @@
     "normal_prior_loc": 0,
     "normal_prior_scale": 1,
     "focal_loss": {
-      "alpha": 0.9,
+      "alpha": 0.65,
       "gamma": 3
     }
   },
@@ -55,7 +55,7 @@
     "num_inner_updates": 5,
     "num_models": 8,
     "KL_weight": 1e-06,
-    "classification_threshold": 0.25,
+    "classification_threshold": 0.35,
     "first_order": true,
     "svgd_bandwidth_scale": 1,
     "svgd_repulsive_weight": 1,
@@ -64,7 +64,7 @@
     "normal_prior_loc": 0,
     "normal_prior_scale": 1,
     "focal_loss": {
-      "alpha": 0.9,
+      "alpha": 0.65,
       "gamma": 3
     }
   },
@@ -73,13 +73,13 @@
     "checkpoint_mode": "last",
     "support_days": 1,
     "num_models": 8,
-    "classification_threshold": 0.25,
+    "classification_threshold": 0.35,
     "gamma_prior_concentration": 1,
     "gamma_prior_rate": 0.01,
     "normal_prior_loc": 0,
     "normal_prior_scale": 1,
     "focal_loss": {
-      "alpha": 0.9,
+      "alpha": 0.65,
       "gamma": 3
     }
   }
