@@ -9,8 +9,8 @@ Reads split and support/query configurations directly from tabular/config.json
 
 Pipeline per CSV:
   1. Feature Engineering:
-     - Global One-Hot Encoding for Location (9 categories)
-     - Global One-Hot Encoding for EMP_STAT (10 categories)
+     - Global One-Hot Encoding for Location (11 categories)
+     - Global One-Hot Encoding for EMP_STAT (12 categories)
      - Cyclic time transformation (time_sin, time_cos)
      - Fixed global TSLS outlier capping (1220.0 minutes)
      - Heart Rate alignment (resting delta HR)
@@ -68,8 +68,8 @@ def engineer_features(
       2. Sex normalization (0/1).
       3. Global TSLS capping.
       4. HR delta alignment.
-      5. Global One-Hot Encoding for Location (9 classes).
-      6. Global One-Hot Encoding for EMP_STAT (10 classes).
+      5. Global One-Hot Encoding for Location (11 classes).
+      6. Global One-Hot Encoding for EMP_STAT (12 classes).
       7. Next-10-min target creation.
     """
     df = df.copy()
@@ -92,18 +92,21 @@ def engineer_features(
     if df["HR"].mean() > 40.0:
         sleeping_mask = df["is_sleeping"] == 1
         if sleeping_mask.sum() > 0:
+            # Sleeping HR is ~15.0 bpm below resting daytime baseline -> add 15.0 to estimate resting reference
             baseline_hr = df.loc[sleeping_mask, "HR"].median() + 15.0
         else:
+            # Fallback for awake-only tasks: 25th percentile of awake HR directly estimates resting baseline
+            # (No +15.0 needed because Q1 of awake HR is already at the resting level)
             baseline_hr = df["HR"].quantile(0.25)
         df["HR"] = (df["HR"] - baseline_hr).astype(np.float32)
     else:
         df["HR"] = df["HR"].astype(np.float32)
 
-    # 5. One-Hot Location (9 binary columns)
+    # 5. One-Hot Location (11 binary columns)
     for loc in LOCATION_CLASSES:
         df[f"loc_{loc}"] = (df["Location"] == loc).astype(np.float32)
 
-    # 6. One-Hot EMP_STAT (10 binary columns)
+    # 6. One-Hot EMP_STAT (12 binary columns)
     for emp in EMP_STAT_CLASSES:
         df[f"emp_{emp}"] = (df["EMP_STAT"] == emp).astype(np.float32)
 
