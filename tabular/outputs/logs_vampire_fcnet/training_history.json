@@ -1,0 +1,64 @@
+{
+  "epochs": [
+    {
+      "epoch": 1,
+      "val_acc": 70.04861089587212,
+      "val_nll": 0.03046537233516574,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_1.pt"
+    },
+    {
+      "epoch": 2,
+      "val_acc": 66.02083322405815,
+      "val_nll": 0.029910818580538033,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_2.pt"
+    },
+    {
+      "epoch": 3,
+      "val_acc": 70.67708343267441,
+      "val_nll": 0.027809276077896357,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_3.pt"
+    },
+    {
+      "epoch": 4,
+      "val_acc": 70.63194432854652,
+      "val_nll": 0.02691704185679555,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_4.pt"
+    },
+    {
+      "epoch": 5,
+      "val_acc": 76.99652791023254,
+      "val_nll": 0.024670871123671532,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_5.pt"
+    },
+    {
+      "epoch": 6,
+      "val_acc": 76.95486104488373,
+      "val_nll": 0.02344541685655713,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_6.pt"
+    },
+    {
+      "epoch": 7,
+      "val_acc": 77.60763907432556,
+      "val_nll": 0.022209169687703253,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_7.pt"
+    },
+    {
+      "epoch": 1,
+      "val_acc": 69.33680626749992,
+      "val_nll": 0.030251231547445058,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_1.pt"
+    },
+    {
+      "epoch": 2,
+      "val_acc": 70.55208429694176,
+      "val_nll": 0.028694262746721506,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_2.pt"
+    }
+  ],
+  "best_checkpoint": {
+    "epoch": 7,
+    "val_acc": 77.60763907432556,
+    "val_nll": 0.022209169687703253,
+    "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_vampire_fcnet\\Epoch_7.pt"
+  }
+}
