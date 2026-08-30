@@ -190,9 +190,65 @@ function initPresets() {
     });
   });
 
-  document.getElementById('btnSavePipeline').addEventListener('click', () => {
-    savePipeline(true);
-  });
+  const btnSavePipe = document.getElementById('btnSavePipeline');
+  if (btnSavePipe) {
+    btnSavePipe.addEventListener('click', () => {
+      savePipeline(true);
+    });
+  }
+}
+
+function initActions() {
+  const btnRun = document.getElementById('btnRunPipeline');
+  if (btnRun) {
+    btnRun.addEventListener('click', () => runPipeline(false));
+  }
+
+  const btnDry = document.getElementById('btnDryRun');
+  if (btnDry) {
+    btnDry.addEventListener('click', () => runPipeline(true));
+  }
+
+  const btnStop = document.getElementById('btnStopPipeline');
+  if (btnStop) {
+    btnStop.addEventListener('click', stopPipeline);
+  }
+
+  const btnSaveCfg = document.getElementById('btnSaveConfig');
+  if (btnSaveCfg) {
+    btnSaveCfg.addEventListener('click', saveConfig);
+  }
+
+  const btnResetCfg = document.getElementById('btnResetConfig');
+  if (btnResetCfg) {
+    btnResetCfg.addEventListener('click', resetToFactoryDefaults);
+  }
+
+  const btnClearTerm = document.getElementById('btnClearTerminal');
+  if (btnClearTerm) {
+    btnClearTerm.addEventListener('click', async () => {
+      try {
+        await fetch('/api/terminal/clear', { method: 'POST' });
+        const term = document.getElementById('terminalOutput');
+        if (term) term.textContent = 'Console cleared.';
+        showToast('Terminal logs cleared', 'info');
+      } catch (e) {
+        showToast(`Clear error: ${e.message}`, 'error');
+      }
+    });
+  }
+
+  const btnCopyTerm = document.getElementById('btnCopyTerminal');
+  if (btnCopyTerm) {
+    btnCopyTerm.addEventListener('click', () => {
+      const term = document.getElementById('terminalOutput');
+      if (term) {
+        navigator.clipboard.writeText(term.textContent || '').then(() => {
+          showToast('Console logs copied to clipboard!', 'success');
+        });
+      }
+    });
+  }
 }
 
 function applyPreset(preset) {
@@ -1218,12 +1274,29 @@ async function runPipeline(isDryRun = false) {
 }
 
 async function stopPipeline() {
+  const btnStop = document.getElementById('btnStopPipeline');
+  if (btnStop) {
+    btnStop.disabled = true;
+    btnStop.innerHTML = '<span>⏳ Aborting...</span>';
+  }
   try {
     const res = await fetch('/api/stop', { method: 'POST' });
     const data = await res.json();
-    showToast(data.message || 'Pipeline stopped', 'error');
+    showToast(data.message || 'Pipeline aborted', 'info');
+
+    // Immediately fetch status to reset running UI
+    const statusRes = await fetch('/api/status');
+    if (statusRes.ok) {
+      const status = await statusRes.json();
+      updateExecutionUI(status);
+    }
   } catch (err) {
     showToast(`Stop error: ${err.message}`, 'error');
+  } finally {
+    if (btnStop) {
+      btnStop.disabled = false;
+      btnStop.innerHTML = '<span>⏹ Abort Run</span>';
+    }
   }
 }
 

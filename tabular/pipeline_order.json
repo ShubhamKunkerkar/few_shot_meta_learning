@@ -22,14 +22,14 @@
           "path": "tabular/experiments/fcnet/train_maml_fcnet.py",
           "architecture": "FcNet",
           "model": "MAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "PLATIPUS + FcNet Training",
           "path": "tabular/experiments/fcnet/train_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "VAMPIRE + FcNet Training",
@@ -43,14 +43,14 @@
           "path": "tabular/experiments/fcnet/train_abml_fcnet.py",
           "architecture": "FcNet",
           "model": "ABML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "BMAML + FcNet Training",
           "path": "tabular/experiments/fcnet/train_bmaml_fcnet.py",
           "architecture": "FcNet",
           "model": "BMAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "MAML + Logistic Regression Training",
@@ -99,14 +99,14 @@
           "path": "tabular/experiments/fcnet/eval_maml_fcnet.py",
           "architecture": "FcNet",
           "model": "MAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "PLATIPUS + FcNet Evaluation",
           "path": "tabular/experiments/fcnet/eval_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "VAMPIRE + FcNet Evaluation",
@@ -120,14 +120,14 @@
           "path": "tabular/experiments/fcnet/eval_abml_fcnet.py",
           "architecture": "FcNet",
           "model": "ABML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "BMAML + FcNet Evaluation",
           "path": "tabular/experiments/fcnet/eval_bmaml_fcnet.py",
           "architecture": "FcNet",
           "model": "BMAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "MAML + Logistic Regression Evaluation",
@@ -176,14 +176,14 @@
           "path": "tabular/experiments/no_adaptation/eval_cold_maml_fcnet.py",
           "architecture": "FcNet",
           "model": "MAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "PLATIPUS + FcNet Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "VAMPIRE + FcNet Cold-Start Evaluation",
@@ -197,14 +197,14 @@
           "path": "tabular/experiments/no_adaptation/eval_cold_abml_fcnet.py",
           "architecture": "FcNet",
           "model": "ABML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "BMAML + FcNet Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_bmaml_fcnet.py",
           "architecture": "FcNet",
           "model": "BMAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "MAML + Logistic Regression Cold-Start Evaluation",

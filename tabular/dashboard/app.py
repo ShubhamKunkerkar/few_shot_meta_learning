@@ -277,16 +277,31 @@ class DashboardHandler(BaseHTTPRequestHandler):
         }).encode("utf-8"))
 
     def _handle_stop(self):
-        global current_process, process_is_running
+        global current_process, process_is_running, process_exit_code, execution_logs
         with process_lock:
-            if current_process and process_is_running:
-                current_process.terminate()
+            if current_process and (process_is_running or current_process.poll() is None):
+                pid = current_process.pid
+                try:
+                    if sys.platform == "win32":
+                        # On Windows, taskkill /F /T kills the entire process tree including child python workers
+                        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+                    else:
+                        current_process.terminate()
+                except Exception as e:
+                    try:
+                        current_process.kill()
+                    except Exception:
+                        pass
+                
+                process_is_running = False
+                process_exit_code = -1
+                execution_logs.append("\n[PROCESS ABORTED] Pipeline execution stopped by user.\n")
+                self._set_headers(status=200)
+                self.wfile.write(json.dumps({"status": "stopped", "message": "Pipeline run aborted successfully"}).encode("utf-8"))
+            else:
                 process_is_running = False
                 self._set_headers(status=200)
-                self.wfile.write(json.dumps({"status": "stopped", "message": "Process terminated"}).encode("utf-8"))
-            else:
-                self._set_headers(status=200)
-                self.wfile.write(json.dumps({"status": "idle", "message": "No running process to stop"}).encode("utf-8"))
+                self.wfile.write(json.dumps({"status": "idle", "message": "No active pipeline process to stop"}).encode("utf-8"))
 
     def log_message(self, format, *args):
         # Clean logging
