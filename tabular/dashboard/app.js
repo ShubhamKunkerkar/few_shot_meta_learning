@@ -163,12 +163,19 @@ async function savePipeline(showNotification = true) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(pipelineData)
     });
+    if (!res.ok) {
+      throw new Error(`Server returned HTTP ${res.status}`);
+    }
     const data = await res.json();
     if (showNotification) {
       showToast('Pipeline order and toggles saved successfully!', 'success');
     }
   } catch (err) {
-    showToast(`Failed to save pipeline: ${err.message}`, 'error');
+    const isOffline = err.message.includes('Failed to fetch') || err.message.includes('NetworkError');
+    const msg = isOffline
+      ? 'Backend disconnected. Please ensure "python tabular/dashboard/app.py" is running.'
+      : `Failed to save pipeline: ${err.message}`;
+    showToast(msg, 'error');
   }
 }
 
