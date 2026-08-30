@@ -42,7 +42,8 @@ def main():
         print(f"  - {os.path.basename(f)}")
 
     # Automatically find best checkpoint epoch based on peak validation accuracy
-    best_epoch, best_ckpt_path, best_val_acc = find_best_checkpoint(log_dir)
+    checkpoint_mode = eval_cfg.get('checkpoint_mode', 'best')
+    best_epoch, best_ckpt_path, best_val_acc = find_best_checkpoint(log_dir, mode=checkpoint_mode)
     acc_str = f" (Peak Val Acc: {best_val_acc:.2f}%)" if best_val_acc is not None else ""
     print(f"\n[AUTO-CHECKPOINT] Automatically selected best model: Epoch {best_epoch}{acc_str}")
 

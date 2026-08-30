@@ -735,6 +735,7 @@ const FACTORY_DEFAULT_CONFIG = {
   },
   fast_adaptation_eval: {
     device: "cuda",
+    checkpoint_mode: "best",
     support_days: 1,
     inner_lr: 0.01,
     num_inner_updates: 5,
@@ -755,6 +756,7 @@ const FACTORY_DEFAULT_CONFIG = {
   },
   cold_start_eval: {
     device: "cuda",
+    checkpoint_mode: "best",
     support_days: 1,
     num_models: 4,
     classification_threshold: 0.5,
@@ -857,6 +859,21 @@ function populateConfigForm(cfg) {
   const elAdaptDev = document.getElementById('cfgAdaptDevice');
   if (elAdaptDev) elAdaptDev.value = fa.device || 'cuda';
 
+  const adaptCkptMode = fa.checkpoint_mode || 'best';
+  const rdoAdaptBest = document.getElementById('cfgAdaptCkptBest');
+  const rdoAdaptLast = document.getElementById('cfgAdaptCkptLast');
+  const lblAdaptBest = document.getElementById('lblAdaptCkptBest');
+  const lblAdaptLast = document.getElementById('lblAdaptCkptLast');
+  if (adaptCkptMode === 'last') {
+    if (rdoAdaptLast) rdoAdaptLast.checked = true;
+    if (lblAdaptLast) lblAdaptLast.classList.add('active');
+    if (lblAdaptBest) lblAdaptBest.classList.remove('active');
+  } else {
+    if (rdoAdaptBest) rdoAdaptBest.checked = true;
+    if (lblAdaptBest) lblAdaptBest.classList.add('active');
+    if (lblAdaptLast) lblAdaptLast.classList.remove('active');
+  }
+
   document.getElementById('cfgAdaptSupportDays').value = fa.support_days !== undefined ? fa.support_days : 1;
   document.getElementById('cfgAdaptInnerUpdates').value = fa.num_inner_updates !== undefined ? fa.num_inner_updates : (tr.num_inner_updates || 5);
   document.getElementById('cfgAdaptInnerLr').value = fa.inner_lr !== undefined ? fa.inner_lr : (tr.inner_lr || 0.01);
@@ -884,6 +901,21 @@ function populateConfigForm(cfg) {
   const csFocal = cs.focal_loss || trFocal || {};
   const elColdDev = document.getElementById('cfgColdDevice');
   if (elColdDev) elColdDev.value = cs.device || 'cuda';
+
+  const coldCkptMode = cs.checkpoint_mode || 'best';
+  const rdoColdBest = document.getElementById('cfgColdCkptBest');
+  const rdoColdLast = document.getElementById('cfgColdCkptLast');
+  const lblColdBest = document.getElementById('lblColdCkptBest');
+  const lblColdLast = document.getElementById('lblColdCkptLast');
+  if (coldCkptMode === 'last') {
+    if (rdoColdLast) rdoColdLast.checked = true;
+    if (lblColdLast) lblColdLast.classList.add('active');
+    if (lblColdBest) lblColdBest.classList.remove('active');
+  } else {
+    if (rdoColdBest) rdoColdBest.checked = true;
+    if (lblColdBest) lblColdBest.classList.add('active');
+    if (lblColdLast) lblColdLast.classList.remove('active');
+  }
 
   document.getElementById('cfgColdSupportDays').value = cs.support_days !== undefined ? cs.support_days : 1;
   document.getElementById('cfgColdNumModels').value = cs.num_models !== undefined ? cs.num_models : (tr.num_models || 4);
@@ -977,10 +1009,31 @@ if (chkTrainFirstOrderEl) {
   chkTrainFirstOrderEl.addEventListener('change', updateTrainFirstOrderLabel);
 }
 
-const chkAdaptFirstOrderEl = document.getElementById('cfgAdaptFirstOrder');
-if (chkAdaptFirstOrderEl) {
-  chkAdaptFirstOrderEl.addEventListener('change', updateAdaptFirstOrderLabel);
+function setupCheckpointRadios(bestId, lastId, lblBestId, lblLastId) {
+  const rdoBest = document.getElementById(bestId);
+  const rdoLast = document.getElementById(lastId);
+  const lblBest = document.getElementById(lblBestId);
+  const lblLast = document.getElementById(lblLastId);
+
+  if (lblBest && rdoBest) {
+    lblBest.addEventListener('click', (e) => {
+      e.preventDefault();
+      rdoBest.checked = true;
+      lblBest.classList.add('active');
+      if (lblLast) lblLast.classList.remove('active');
+    });
+  }
+  if (lblLast && rdoLast) {
+    lblLast.addEventListener('click', (e) => {
+      e.preventDefault();
+      rdoLast.checked = true;
+      lblLast.classList.add('active');
+      if (lblBest) lblBest.classList.remove('active');
+    });
+  }
 }
+setupCheckpointRadios('cfgAdaptCkptBest', 'cfgAdaptCkptLast', 'lblAdaptCkptBest', 'lblAdaptCkptLast');
+setupCheckpointRadios('cfgColdCkptBest', 'cfgColdCkptLast', 'lblColdCkptBest', 'lblColdCkptLast');
 
 async function saveConfig() {
   const hiddenUnitsStr = document.getElementById('cfgFcnetHiddenUnits') ? document.getElementById('cfgFcnetHiddenUnits').value : '40, 40';
@@ -1037,6 +1090,7 @@ async function saveConfig() {
     },
     fast_adaptation_eval: {
       device: document.getElementById('cfgAdaptDevice') ? document.getElementById('cfgAdaptDevice').value : "cuda",
+      checkpoint_mode: document.getElementById('cfgAdaptCkptLast') && document.getElementById('cfgAdaptCkptLast').checked ? 'last' : 'best',
       support_days: getNumberVal('cfgAdaptSupportDays', 1),
       inner_lr: getNumberVal('cfgAdaptInnerLr', 0.01),
       num_inner_updates: getNumberVal('cfgAdaptInnerUpdates', 5),
@@ -1057,6 +1111,7 @@ async function saveConfig() {
     },
     cold_start_eval: {
       device: document.getElementById('cfgColdDevice') ? document.getElementById('cfgColdDevice').value : "cuda",
+      checkpoint_mode: document.getElementById('cfgColdCkptLast') && document.getElementById('cfgColdCkptLast').checked ? 'last' : 'best',
       support_days: getNumberVal('cfgColdSupportDays', 1),
       num_models: getNumberVal('cfgColdNumModels', 4),
       classification_threshold: getNumberVal('cfgColdThreshold', 0.5),

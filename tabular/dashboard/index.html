@@ -483,12 +483,31 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Model Checkpoint</label>
-                <div class="auto-checkpoint-badge">
-                  <span class="badge-dot pulse"></span>
-                  <span>Auto: Peak Val Accuracy Checkpoint</span>
-                </div>
-                <small class="helper-text">Automatically loaded from log directory</small>
+                <label>Test Case Support Days</label>
+                <input type="number" id="cfgAdaptSupportDays" min="0" max="10" value="1">
+                <small class="helper-text">1 day = 144 steps for adaptation</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Model Checkpoint Epoch Selection</label>
+              <div class="checkpoint-toggle-group">
+                <label class="checkpoint-option active" id="lblAdaptCkptBest">
+                  <input type="radio" name="adaptCheckpointMode" id="cfgAdaptCkptBest" value="best" checked>
+                  <span class="checkbox-tick">✓</span>
+                  <div class="opt-text">
+                    <strong>Highest Val Accuracy (Peak Epoch)</strong>
+                    <small>Auto-loads model with best validation score</small>
+                  </div>
+                </label>
+                <label class="checkpoint-option" id="lblAdaptCkptLast">
+                  <input type="radio" name="adaptCheckpointMode" id="cfgAdaptCkptLast" value="last">
+                  <span class="checkbox-tick">✓</span>
+                  <div class="opt-text">
+                    <strong>Last / Final Training Epoch</strong>
+                    <small>Loads final checkpoint from meta-training</small>
+                  </div>
+                </label>
               </div>
             </div>
 
@@ -587,12 +606,31 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Model Checkpoint</label>
-                <div class="auto-checkpoint-badge">
-                  <span class="badge-dot pulse"></span>
-                  <span>Auto: Peak Val Accuracy Checkpoint</span>
-                </div>
-                <small class="helper-text">Automatically loaded from log directory</small>
+                <label>Query Evaluation Support Days</label>
+                <input type="number" id="cfgColdSupportDays" min="0" max="10" value="1">
+                <small class="helper-text">Remaining days evaluated as Query</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Cold-Start Prior Checkpoint Selection</label>
+              <div class="checkpoint-toggle-group">
+                <label class="checkpoint-option active" id="lblColdCkptBest">
+                  <input type="radio" name="coldCheckpointMode" id="cfgColdCkptBest" value="best" checked>
+                  <span class="checkbox-tick">✓</span>
+                  <div class="opt-text">
+                    <strong>Highest Val Accuracy (Peak Epoch)</strong>
+                    <small>Loads prior weights from best val accuracy epoch</small>
+                  </div>
+                </label>
+                <label class="checkpoint-option" id="lblColdCkptLast">
+                  <input type="radio" name="coldCheckpointMode" id="cfgColdCkptLast" value="last">
+                  <span class="checkbox-tick">✓</span>
+                  <div class="opt-text">
+                    <strong>Last / Final Training Epoch</strong>
+                    <small>Loads prior weights from final training epoch</small>
+                  </div>
+                </label>
               </div>
             </div>
 

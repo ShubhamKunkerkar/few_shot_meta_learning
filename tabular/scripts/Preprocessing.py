@@ -45,14 +45,14 @@ LOCATION_CLASSES = [
     'School', 'Hospital'
 ]
 
-EMP_STAT_CLASSES = [10, 11, 12, 13, 14, 101, 103, 104, 105, 108]
+EMP_STAT_CLASSES = [10, 11, 12, 13, 14, 101, 102, 103, 104, 105, 106, 108]
 
 CONTINUOUS_COLS = ["AGEP_A", "CIGNOW_A", "TSLS_capped", "HR"]
 STATIC_COLS = ["time_sin", "time_cos", "is_sleeping", "SEX_A"]
 ONE_HOT_LOC_COLS = [f"loc_{loc}" for loc in LOCATION_CLASSES]
 ONE_HOT_EMP_COLS = [f"emp_{emp}" for emp in EMP_STAT_CLASSES]
 
-# Full 29 ordered features
+# Full 31 ordered features
 FEATURE_COLS = STATIC_COLS + CONTINUOUS_COLS + ONE_HOT_LOC_COLS + ONE_HOT_EMP_COLS
 TARGET_COL = "Did the user smoke in next 10 mins"
 DEFAULT_TSLS_CAP = 1220.0
@@ -85,13 +85,14 @@ def engineer_features(
     # 3. Continuous signals
     df["AGEP_A"] = df["AGEP_A"].astype(np.float32)
     df["CIGNOW_A"] = df["CIGNOW_A"].astype(np.float32)
-    df["TSLS_capped"] = df["TSLS"].clip(upper=tsls_cap).astype(np.float32)
+    df["TSLS_capped"] = df["TSLS"].clip(lower=0.0, upper=tsls_cap).astype(np.float32)
 
-    # 4. Heart rate delta alignment (if absolute BPM > 40 is detected, subtract baseline)
+    # 4. Heart rate delta alignment (if absolute BPM > 40 is detected, subtract resting baseline)
+    # Note: In training & TestCase1, HR is already in delta format where sleeping HR is -15.0 bpm below resting daytime baseline.
     if df["HR"].mean() > 40.0:
         sleeping_mask = df["is_sleeping"] == 1
         if sleeping_mask.sum() > 0:
-            baseline_hr = df.loc[sleeping_mask, "HR"].median()
+            baseline_hr = df.loc[sleeping_mask, "HR"].median() + 15.0
         else:
             baseline_hr = df["HR"].quantile(0.25)
         df["HR"] = (df["HR"] - baseline_hr).astype(np.float32)
@@ -270,6 +271,7 @@ def main():
     parser.add_argument("--k_shot", type=int, default=None, help="Explicit support steps count (overrides support_days).")
     parser.add_argument("--val_frac", type=float, default=None, help="Validation fraction for multi-task datasets.")
     parser.add_argument("--test_frac", type=float, default=None, help="Test fraction for multi-task datasets.")
+    parser.add_argument("--tsls_cap", type=float, default=None, help="Upper capping threshold for TSLS in minutes.")
     parser.add_argument("--seed", type=int, default=None, help="Random seed.")
     args = parser.parse_args()
 
@@ -289,6 +291,7 @@ def main():
     raw_dir = args.raw_dir or prepro_cfg.get("raw_dir", "tabular/data/raw")
     output_dir = args.output_dir or prepro_cfg.get("output_dir", "tabular/data/processed")
     seed = args.seed if args.seed is not None else prepro_cfg.get("seed", 42)
+    resolved_tsls_cap = args.tsls_cap if args.tsls_cap is not None else float(prepro_cfg.get("tsls_cap", DEFAULT_TSLS_CAP))
 
     val_frac = args.val_frac if args.val_frac is not None else prepro_cfg.get("val_frac", meta_split_cfg.get("val_frac", 0.15))
     test_frac = args.test_frac if args.test_frac is not None else prepro_cfg.get("test_frac", meta_split_cfg.get("test_frac", 0.15))
@@ -317,7 +320,7 @@ def main():
     csv_files.sort(key=lambda p: 0 if "dataset_prepro" in Path(p).name.lower() else 1)
 
     scaler = None
-    tsls_cap = DEFAULT_TSLS_CAP
+    tsls_cap = resolved_tsls_cap
 
     for idx, f in enumerate(csv_files):
         is_primary = (idx == 0)

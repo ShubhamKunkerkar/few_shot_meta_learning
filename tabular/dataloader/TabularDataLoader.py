@@ -45,15 +45,13 @@ def resolve_device(device_str: typing.Optional[typing.Union[str, torch.device]] 
     return torch.device("cpu")
 
 
-def find_best_checkpoint(log_dir: str) -> typing.Tuple[int, str, typing.Optional[float]]:
+def find_best_checkpoint(log_dir: str, mode: str = "best") -> typing.Tuple[int, str, typing.Optional[float]]:
     """
-    Scans log_dir to automatically find the checkpoint with the highest validation accuracy.
-    Checks:
-      1. training_history.json if present
-      2. checkpoint metadata saved inside Epoch_*.pt
-      3. falls back to the highest epoch number available
+    Scans log_dir to find checkpoint based on selection mode:
+      - mode='best': finds checkpoint with highest validation accuracy.
+      - mode='last': finds the last / final training epoch checkpoint.
     Returns:
-      (best_epoch, best_checkpoint_path, best_val_accuracy)
+      (selected_epoch, selected_checkpoint_path, val_accuracy_if_available)
     """
     import glob
     import re
@@ -61,7 +59,34 @@ def find_best_checkpoint(log_dir: str) -> typing.Tuple[int, str, typing.Optional
     if not os.path.exists(log_dir):
         raise FileNotFoundError(f"Log directory not found: {log_dir}")
 
-    # 1. Check training_history.json
+    # Search for Epoch_*.pt files
+    pt_files = glob.glob(os.path.join(log_dir, "Epoch_*.pt"))
+    if not pt_files:
+        raise FileNotFoundError(f"No checkpoint files (Epoch_*.pt) found in: {log_dir}")
+
+    # 1. If mode is "last" / "final", directly pick the highest epoch number
+    if str(mode).lower() in ("last", "final", "last_epoch"):
+        max_epoch = -1
+        max_path = None
+        for fpath in pt_files:
+            match = re.search(r"Epoch_(\d+)\.pt$", os.path.basename(fpath))
+            if match:
+                ep = int(match.group(1))
+                if ep > max_epoch:
+                    max_epoch = ep
+                    max_path = fpath
+        if max_epoch >= 0:
+            val_acc = None
+            try:
+                ckpt_data = torch.load(max_path, map_location="cpu", weights_only=False)
+                if isinstance(ckpt_data, dict) and "val_acc" in ckpt_data and ckpt_data["val_acc"] is not None:
+                    val_acc = float(ckpt_data["val_acc"])
+            except Exception:
+                pass
+            return max_epoch, max_path, val_acc
+
+    # 2. Otherwise (mode is "best" / "highest_val_acc")
+    # Check training_history.json first
     history_file = os.path.join(log_dir, "training_history.json")
     if os.path.exists(history_file):
         try:
@@ -75,11 +100,6 @@ def find_best_checkpoint(log_dir: str) -> typing.Tuple[int, str, typing.Optional
                     return epoch_num, ckpt_path, best.get("val_acc")
         except Exception:
             pass
-
-    # 2. Search for Epoch_*.pt files
-    pt_files = glob.glob(os.path.join(log_dir, "Epoch_*.pt"))
-    if not pt_files:
-        raise FileNotFoundError(f"No checkpoint files (Epoch_*.pt) found in: {log_dir}")
 
     best_epoch = None
     best_acc = -1.0

@@ -125,7 +125,7 @@ These parameters control how continuous tabular time-series data (10-minute inte
 
 ### Global Categorical Vocabularies
 * **`LOCATION_CLASSES` (11 Categories)**: `'Home'`, `'Public Place'`, `'Office'`, `'Construction Site'`, `'Factory'`, `'Restaurant'`, `'Gym'`, `'Entertainment'`, `'Market'`, `'School'`, `'Hospital'`.
-* **`EMP_STAT_CLASSES` (10 Categories)**: `10`, `11`, `12`, `13`, `14`, `101`, `103`, `104`, `105`, `108`.
+* **`EMP_STAT_CLASSES` (12 Categories)**: `10`, `11`, `12`, `13`, `14`, `101`, `102`, `103`, `104`, `105`, `106`, `108`.
 
 ---
 
@@ -170,6 +170,7 @@ These parameters control task-specific fine-tuning on unseen test cases (e.g., T
 
 | Parameter | Type | Default | Description |
 | :--- | :---: | :---: | :--- |
+| **`checkpoint_mode`** | `str` | `"best"` | Mode for selecting the trained model checkpoint: `"best"` (automatically selects the epoch with the highest validation accuracy) or `"last"` (loads the final training epoch checkpoint). |
 | **`support_days`** | `int` | `1` | Number of days provided in the test case support set for adaptation fine-tuning. |
 | **`inner_lr`** | `float` | `0.01` | Adaptation step size $\alpha$ applied during test-time inference. |
 | **`num_inner_updates`** | `int` | `5` | Number of gradient updates $K$ applied to the support set before evaluating on the query set. |
@@ -186,6 +187,7 @@ Evaluates the raw meta-prior distribution without performing any support set ada
 
 | Parameter | Type | Default | Description |
 | :--- | :---: | :---: | :--- |
+| **`checkpoint_mode`** | `str` | `"best"` | Mode for selecting the meta-learned prior checkpoint: `"best"` (highest validation accuracy epoch) or `"last"` (final training epoch). |
 | **`num_inner_updates`** | `int` | `0` | Strictly `0`. Bypasses support set fine-tuning to evaluate zero-shot generalization of the global prior. |
 | **`num_models`** | `int` | `4` | Number of models sampled directly from the global prior $p(\theta)$ for ensemble prediction. |
 | **`classification_threshold`** | `float` | `0.50` | Decision threshold $\tau$ for evaluating cold-start query performance. |

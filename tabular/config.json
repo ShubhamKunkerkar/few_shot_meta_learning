@@ -12,17 +12,20 @@
     "val_frac": 0.15,
     "test_frac": 0,
     "support_days": 1,
-    "tsls_cap": 1220.0
+    "tsls_cap": 1220
   },
   "fcnet": {
-    "num_hidden_units": [40, 40],
-    "activation": "relu",
-    "dropout_rate": 0.0,
+    "num_hidden_units": [
+      64,
+      64
+    ],
+    "activation": "leaky_relu",
+    "dropout_rate": 0,
     "use_layernorm": false
   },
   "meta_training": {
-    "device": "cuda",
-    "num_epochs": 20,
+    "device": "cpu",
+    "num_epochs": 35,
     "num_episodes_per_epoch": 1000,
     "minibatch": 5,
     "minibatch_print": 250,
@@ -30,52 +33,54 @@
     "inner_lr": 0.01,
     "num_inner_updates": 5,
     "first_order": true,
-    "num_models": 4,
+    "num_models": 8,
     "KL_weight": 1e-06,
-    "classification_threshold": 0.5,
-    "svgd_bandwidth_scale": 1.0,
-    "svgd_repulsive_weight": 1.0,
-    "gamma_prior_concentration": 1.0,
+    "classification_threshold": 0.25,
+    "svgd_bandwidth_scale": 1,
+    "svgd_repulsive_weight": 1,
+    "gamma_prior_concentration": 1,
     "gamma_prior_rate": 0.01,
-    "normal_prior_loc": 0.0,
-    "normal_prior_scale": 1.0,
+    "normal_prior_loc": 0,
+    "normal_prior_scale": 1,
     "focal_loss": {
-      "alpha": 0.25,
-      "gamma": 2.0
+      "alpha": 0.9,
+      "gamma": 3
     }
   },
   "fast_adaptation_eval": {
-    "device": "cuda",
+    "device": "cpu",
+    "checkpoint_mode": "last",
     "support_days": 1,
     "inner_lr": 0.01,
     "num_inner_updates": 5,
-    "num_models": 4,
+    "num_models": 8,
     "KL_weight": 1e-06,
-    "classification_threshold": 0.5,
+    "classification_threshold": 0.25,
     "first_order": true,
-    "svgd_bandwidth_scale": 1.0,
-    "svgd_repulsive_weight": 1.0,
-    "gamma_prior_concentration": 1.0,
+    "svgd_bandwidth_scale": 1,
+    "svgd_repulsive_weight": 1,
+    "gamma_prior_concentration": 1,
     "gamma_prior_rate": 0.01,
-    "normal_prior_loc": 0.0,
-    "normal_prior_scale": 1.0,
+    "normal_prior_loc": 0,
+    "normal_prior_scale": 1,
     "focal_loss": {
-      "alpha": 0.25,
-      "gamma": 2.0
+      "alpha": 0.9,
+      "gamma": 3
     }
   },
   "cold_start_eval": {
-    "device": "cuda",
+    "device": "cpu",
+    "checkpoint_mode": "last",
     "support_days": 1,
-    "num_models": 4,
-    "classification_threshold": 0.5,
-    "gamma_prior_concentration": 1.0,
+    "num_models": 8,
+    "classification_threshold": 0.25,
+    "gamma_prior_concentration": 1,
     "gamma_prior_rate": 0.01,
-    "normal_prior_loc": 0.0,
-    "normal_prior_scale": 1.0,
+    "normal_prior_loc": 0,
+    "normal_prior_scale": 1,
     "focal_loss": {
-      "alpha": 0.25,
-      "gamma": 2.0
+      "alpha": 0.9,
+      "gamma": 3
     }
   }
 }

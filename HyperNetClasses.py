@@ -129,13 +129,11 @@ class PlatipusNet(torch.nn.Module):
         self.params = torch.nn.ParameterList()
 
         # add parameters into ParameterList
-        self.params.append(torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,))))
+        params_list = intialize_parameters(state_dict=base_state_dict)
+        params_vec = torch.nn.utils.parameters_to_vector(parameters=params_list)
+        self.params.append(torch.nn.Parameter(data=params_vec))
         self.params.append(torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,)) - 4))
         self.params.append(torch.nn.Parameter(data=torch.randn(size=(self.num_base_params,)) - 4))
-        # for _ in ("mu_theta", "log_sigma_theta", "log_v_q"):
-        #     params_list = intialize_parameters(state_dict=base_state_dict)
-        #     params_vec = torch.nn.utils.parameters_to_vector(parameters=params_list) - 4 # flattened tensor
-        #     self.params.append(torch.nn.Parameter(data=params_vec))
         
         self.params.append(torch.nn.Parameter(data=torch.tensor(0.01))) # gamma_p
         self.params.append(torch.nn.Parameter(data=torch.tensor(0.01))) # gamma_q
