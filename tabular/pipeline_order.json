@@ -8,7 +8,7 @@
         {
           "name": "Tabular Preprocessing",
           "path": "tabular/scripts/Preprocessing.py",
-          "enabled": true
+          "enabled": false
         }
       ]
     },
@@ -22,7 +22,7 @@
           "path": "tabular/experiments/fcnet/train_maml_fcnet.py",
           "architecture": "FcNet",
           "model": "MAML",
-          "enabled": true
+          "enabled": false
         },
         {
           "name": "PLATIPUS + FcNet Training",
@@ -106,63 +106,63 @@
           "path": "tabular/experiments/fcnet/eval_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + FcNet Evaluation",
           "path": "tabular/experiments/fcnet/eval_vampire_fcnet.py",
           "architecture": "FcNet",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "ABML + FcNet Evaluation",
           "path": "tabular/experiments/fcnet/eval_abml_fcnet.py",
           "architecture": "FcNet",
           "model": "ABML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "BMAML + FcNet Evaluation",
           "path": "tabular/experiments/fcnet/eval_bmaml_fcnet.py",
           "architecture": "FcNet",
           "model": "BMAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "MAML + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_maml_lr.py",
           "architecture": "LogisticRegression",
           "model": "MAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "PLATIPUS + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_platipus_lr.py",
           "architecture": "LogisticRegression",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_vampire_lr.py",
           "architecture": "LogisticRegression",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "ABML + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_abml_lr.py",
           "architecture": "LogisticRegression",
           "model": "ABML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "BMAML + Logistic Regression Evaluation",
           "path": "tabular/experiments/logistic_regression/eval_bmaml_lr.py",
           "architecture": "LogisticRegression",
           "model": "BMAML",
-          "enabled": false
+          "enabled": true
         }
       ]
     },
@@ -183,63 +183,63 @@
           "path": "tabular/experiments/no_adaptation/eval_cold_platipus_fcnet.py",
           "architecture": "FcNet",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + FcNet Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_vampire_fcnet.py",
           "architecture": "FcNet",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "ABML + FcNet Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_abml_fcnet.py",
           "architecture": "FcNet",
           "model": "ABML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "BMAML + FcNet Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_bmaml_fcnet.py",
           "architecture": "FcNet",
           "model": "BMAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "MAML + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_maml_lr.py",
           "architecture": "LogisticRegression",
           "model": "MAML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "PLATIPUS + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_platipus_lr.py",
           "architecture": "LogisticRegression",
           "model": "PLATIPUS",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "VAMPIRE + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_vampire_lr.py",
           "architecture": "LogisticRegression",
           "model": "VAMPIRE",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "ABML + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_abml_lr.py",
           "architecture": "LogisticRegression",
           "model": "ABML",
-          "enabled": false
+          "enabled": true
         },
         {
           "name": "BMAML + Logistic Regression Cold-Start Evaluation",
           "path": "tabular/experiments/no_adaptation/eval_cold_bmaml_lr.py",
           "architecture": "LogisticRegression",
           "model": "BMAML",
-          "enabled": false
+          "enabled": true
         }
       ]
     }

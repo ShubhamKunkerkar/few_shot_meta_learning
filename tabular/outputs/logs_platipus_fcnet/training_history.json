@@ -1,0 +1,16 @@
+{
+  "epochs": [
+    {
+      "epoch": 1,
+      "val_acc": 89.49652773141861,
+      "val_nll": 0.018560930765233935,
+      "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_platipus_fcnet\\Epoch_1.pt"
+    }
+  ],
+  "best_checkpoint": {
+    "epoch": 1,
+    "val_acc": 89.49652773141861,
+    "val_nll": 0.018560930765233935,
+    "checkpoint_path": "C:\\Users\\kunke\\OneDrive\\Desktop\\BayesianMetalearning\\few_shot_meta_learning\\tabular\\outputs\\logs_platipus_fcnet\\Epoch_1.pt"
+  }
+}

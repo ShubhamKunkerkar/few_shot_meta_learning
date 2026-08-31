@@ -79,57 +79,65 @@ def main():
         'loss_function': FocalLoss(alpha=loss_cfg.get('alpha', 0.25), gamma=loss_cfg.get('gamma', 2.0))
     }
 
+    print(f"Initializing ABML on {device} and loading pre-trained model (Epoch {best_epoch})...")
     abml = Abml(config=config)
 
-    # 1. Evaluate on all standard test cases
-    for tc_file in test_case_files:
-        tc_name = os.path.basename(tc_file).replace('.pt', '')
-        print(f"\n==========================================")
-        print(f"Evaluating Fast Adaptation on: {tc_name}")
-        print(f"==========================================")
+    dummy_tasks = torch.load(test_case_files[0], weights_only=False)
+    dummy_ep = [{
+        "x_s": dummy_tasks[0]['x_s'].unsqueeze(0),
+        "y_s": dummy_tasks[0]['y_s'].unsqueeze(0),
+        "x_q": dummy_tasks[0]['x_q'].unsqueeze(0),
+        "y_q": dummy_tasks[0]['y_q'].unsqueeze(0),
+        "task_id": int(dummy_tasks[0].get('task_id', 1))
+    }]
+    model = abml.load_model(resume_epoch=best_epoch, hyper_net_class=abml.hyper_net_class, eps_dataloader=dummy_ep)
 
-        tasks = torch.load(tc_file, weights_only=False)
-        model = abml.load_model(resume_epoch=best_epoch, eps_dataloader=None)
+    for tc_path in test_case_files:
+        tc_name = os.path.basename(tc_path)
+        tasks = torch.load(tc_path, weights_only=False)
+        ep0 = tasks[0]
+        x_s, y_s = ep0['x_s'], ep0['y_s']
+        x_q, y_q = ep0['x_q'], ep0['y_q']
+        task_id = ep0.get('task_id', 1)
 
-        for task_id, task_data in enumerate(tasks):
-            x_s = task_data['support_x'].to(device)
-            y_s = task_data['support_y'].to(device)
-            x_q = task_data['query_x'].to(device)
-            y_q = task_data['query_y'].to(device)
+        ep = [{
+            "x_s": x_s.unsqueeze(0),
+            "y_s": y_s.unsqueeze(0),
+            "x_q": x_q.unsqueeze(0),
+            "y_q": y_q.unsqueeze(0),
+            "task_id": int(task_id)
+        }]
 
-            ep = [{
-                'x_s': x_s.unsqueeze(0),
-                'y_s': y_s.unsqueeze(0),
-                'x_q': x_q.unsqueeze(0),
-                'y_q': y_q.unsqueeze(0),
-                'task_id': task_id
-            }]
+        split_data = tabular_train_val_split(ep[0])
+        x_t = split_data['x_t'].to(device)
+        y_t = split_data['y_t'].to(device)
+        x_v = split_data['x_v'].to(device)
+        y_v = split_data['y_v'].to(device)
 
-            split_data = tabular_train_val_split(ep[0])
-            x_t = split_data['x_t'].to(device)
-            y_t = split_data['y_t'].to(device)
-            x_v = split_data['x_v'].to(device)
-            y_v = split_data['y_v'].to(device)
+        adapted_hyper_net = abml.adaptation(x=x_t, y=y_t, model=model)
+        logits_list = abml.prediction(x=x_v, adapted_hyper_net=adapted_hyper_net, model=model)
+        probs_list = [torch.softmax(l, dim=1) for l in logits_list]
+        avg_probs = torch.stack(probs_list).mean(dim=0)
 
-            adapted_hyper_net = abml.adaptation(x=x_t, y=y_t, model=model)
-            logits_list = abml.prediction(x=x_v, adapted_hyper_net=adapted_hyper_net, model=model)
-            probs_list = [torch.softmax(l, dim=1) for l in logits_list]
-            avg_probs = torch.stack(probs_list).mean(dim=0)
+        cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
+        y_pred = (avg_probs[:, 1] >= cls_threshold).long().cpu().numpy()
+        y_true = y_v.cpu().numpy()
 
-            cls_threshold = float(eval_cfg.get("classification_threshold", 0.5))
-            y_pred = (avg_probs[:, 1] >= cls_threshold).long().cpu().numpy()
-            y_true = y_v.cpu().numpy()
+        compute_metrics(
+            y_true=y_true,
+            y_pred=y_pred,
+            test_case=tc_name,
+            task_id=task_id,
+            model="ABML",
+            architecture="LogisticRegression",
+            mode="Fast Adaptation",
+            query_size=list(x_q.shape)
+        )
 
-            compute_metrics(
-                y_true=y_true,
-                y_pred=y_pred,
-                test_case=tc_name,
-                task_id=task_id,
-                model="ABML",
-                architecture="LogisticRegression",
-                mode="Fast Adaptation",
-                query_size=list(x_q.shape)
-            )
+        print("\n" + "="*60)
+        print(f"EVALUATION: {tc_name} (Task ID {task_id}) [ABML LR]")
+        print(f"Support: {list(x_s.shape)} | Query: {list(x_q.shape)}")
+        print("="*60)
 
 
 if __name__ == '__main__':
