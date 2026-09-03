@@ -1,0 +1,610 @@
+{
+  "epochs": [
+    {
+      "epoch": 1,
+      "val_acc": 55.95486098527908,
+      "val_nll": 0.017630768781527875,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_1.pt"
+    },
+    {
+      "epoch": 2,
+      "val_acc": 61.30555561184883,
+      "val_nll": 0.015683380179107188,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_2.pt"
+    },
+    {
+      "epoch": 3,
+      "val_acc": 70.53819435834885,
+      "val_nll": 0.012920986203243955,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_3.pt"
+    },
+    {
+      "epoch": 4,
+      "val_acc": 70.09027761220932,
+      "val_nll": 0.012507698305416853,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_4.pt"
+    },
+    {
+      "epoch": 5,
+      "val_acc": 74.42013889551163,
+      "val_nll": 0.01162236982549075,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_5.pt"
+    },
+    {
+      "epoch": 6,
+      "val_acc": 74.72222226858139,
+      "val_nll": 0.010863604893675074,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_6.pt"
+    },
+    {
+      "epoch": 7,
+      "val_acc": 75.3923608660698,
+      "val_nll": 0.011489659488433971,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_7.pt"
+    },
+    {
+      "epoch": 8,
+      "val_acc": 73.99652761220932,
+      "val_nll": 0.012176593657350167,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_8.pt"
+    },
+    {
+      "epoch": 9,
+      "val_acc": 75.40625005960464,
+      "val_nll": 0.011416153133613988,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_9.pt"
+    },
+    {
+      "epoch": 10,
+      "val_acc": 72.47222244739532,
+      "val_nll": 0.01134479346103035,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_10.pt"
+    },
+    {
+      "epoch": 11,
+      "val_acc": 73.65624988079071,
+      "val_nll": 0.01186538179172203,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_11.pt"
+    },
+    {
+      "epoch": 12,
+      "val_acc": 77.19097238779068,
+      "val_nll": 0.010223637443850749,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_12.pt"
+    },
+    {
+      "epoch": 13,
+      "val_acc": 77.97569453716278,
+      "val_nll": 0.010843897253507748,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_13.pt"
+    },
+    {
+      "epoch": 14,
+      "val_acc": 78.23611122369766,
+      "val_nll": 0.011027780970325694,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_14.pt"
+    },
+    {
+      "epoch": 15,
+      "val_acc": 79.05208307504654,
+      "val_nll": 0.009740145731484517,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_15.pt"
+    },
+    {
+      "epoch": 16,
+      "val_acc": 76.54166674613953,
+      "val_nll": 0.010524897939758375,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_16.pt"
+    },
+    {
+      "epoch": 17,
+      "val_acc": 82.74652761220932,
+      "val_nll": 0.008736331571126356,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_17.pt"
+    },
+    {
+      "epoch": 18,
+      "val_acc": 77.14236092567444,
+      "val_nll": 0.010062941132346168,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_18.pt"
+    },
+    {
+      "epoch": 19,
+      "val_acc": 80.38194435834885,
+      "val_nll": 0.008695190490107052,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_19.pt"
+    },
+    {
+      "epoch": 20,
+      "val_acc": 77.00347220897675,
+      "val_nll": 0.01050085321709048,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_20.pt"
+    },
+    {
+      "epoch": 21,
+      "val_acc": 78.11111110448837,
+      "val_nll": 0.00927012335974723,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_21.pt"
+    },
+    {
+      "epoch": 22,
+      "val_acc": 78.15277773141861,
+      "val_nll": 0.009744777451851405,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_22.pt"
+    },
+    {
+      "epoch": 23,
+      "val_acc": 77.56944471597672,
+      "val_nll": 0.0094136140239425,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_23.pt"
+    },
+    {
+      "epoch": 24,
+      "val_acc": 80.73611116409302,
+      "val_nll": 0.00808633239590563,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_24.pt"
+    },
+    {
+      "epoch": 25,
+      "val_acc": 81.92013877630234,
+      "val_nll": 0.008030524174391757,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_25.pt"
+    },
+    {
+      "epoch": 26,
+      "val_acc": 79.28125011920929,
+      "val_nll": 0.008715461496030912,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_26.pt"
+    },
+    {
+      "epoch": 27,
+      "val_acc": 82.05208331346512,
+      "val_nll": 0.00834263430617284,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_27.pt"
+    },
+    {
+      "epoch": 28,
+      "val_acc": 77.77083337306976,
+      "val_nll": 0.009264366305433213,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_28.pt"
+    },
+    {
+      "epoch": 29,
+      "val_acc": 82.39236104488373,
+      "val_nll": 0.008226294049527495,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_29.pt"
+    },
+    {
+      "epoch": 30,
+      "val_acc": 80.70138883590698,
+      "val_nll": 0.008624039503920357,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_30.pt"
+    },
+    {
+      "epoch": 31,
+      "val_acc": 82.40972220897675,
+      "val_nll": 0.008175842212658609,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_31.pt"
+    },
+    {
+      "epoch": 32,
+      "val_acc": 82.15624994039536,
+      "val_nll": 0.00800648029835429,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_32.pt"
+    },
+    {
+      "epoch": 33,
+      "val_acc": 83.47916668653488,
+      "val_nll": 0.008107959234621376,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_33.pt"
+    },
+    {
+      "epoch": 34,
+      "val_acc": 79.96875029802322,
+      "val_nll": 0.008359916415065527,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_34.pt"
+    },
+    {
+      "epoch": 35,
+      "val_acc": 82.66666692495346,
+      "val_nll": 0.008101156053307933,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_35.pt"
+    },
+    {
+      "epoch": 36,
+      "val_acc": 83.34722244739532,
+      "val_nll": 0.008908378370688298,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_36.pt"
+    },
+    {
+      "epoch": 37,
+      "val_acc": 80.09722226858139,
+      "val_nll": 0.008543890040018596,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_37.pt"
+    },
+    {
+      "epoch": 38,
+      "val_acc": 82.60069417953491,
+      "val_nll": 0.008542698706150986,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_38.pt"
+    },
+    {
+      "epoch": 39,
+      "val_acc": 80.25347203016281,
+      "val_nll": 0.009166549819346982,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_39.pt"
+    },
+    {
+      "epoch": 40,
+      "val_acc": 80.73611110448837,
+      "val_nll": 0.008479988283943385,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_40.pt"
+    },
+    {
+      "epoch": 41,
+      "val_acc": 82.71180528402328,
+      "val_nll": 0.008460272744414396,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_41.pt"
+    },
+    {
+      "epoch": 42,
+      "val_acc": 82.85069435834885,
+      "val_nll": 0.007824491761275566,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_42.pt"
+    },
+    {
+      "epoch": 43,
+      "val_acc": 80.89583319425583,
+      "val_nll": 0.00891953936778009,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_43.pt"
+    },
+    {
+      "epoch": 44,
+      "val_acc": 82.12499994039536,
+      "val_nll": 0.008606833690428174,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_44.pt"
+    },
+    {
+      "epoch": 45,
+      "val_acc": 84.2083335518837,
+      "val_nll": 0.007921576343942433,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_45.pt"
+    },
+    {
+      "epoch": 46,
+      "val_acc": 83.99305558204651,
+      "val_nll": 0.007728234768146649,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_46.pt"
+    },
+    {
+      "epoch": 47,
+      "val_acc": 80.40624976158142,
+      "val_nll": 0.0081457527668681,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_47.pt"
+    },
+    {
+      "epoch": 48,
+      "val_acc": 85.54166680574417,
+      "val_nll": 0.007575243593018968,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_48.pt"
+    },
+    {
+      "epoch": 49,
+      "val_acc": 80.71875,
+      "val_nll": 0.008426667985040694,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_49.pt"
+    },
+    {
+      "epoch": 50,
+      "val_acc": 82.97569471597672,
+      "val_nll": 0.008093424417311326,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_50.pt"
+    },
+    {
+      "epoch": 51,
+      "val_acc": 82.81249982118607,
+      "val_nll": 0.00835814639867749,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_51.pt"
+    },
+    {
+      "epoch": 52,
+      "val_acc": 82.78472220897675,
+      "val_nll": 0.00826444702950539,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_52.pt"
+    },
+    {
+      "epoch": 53,
+      "val_acc": 81.68750011920929,
+      "val_nll": 0.008358303760178386,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_53.pt"
+    },
+    {
+      "epoch": 54,
+      "val_acc": 81.89583331346512,
+      "val_nll": 0.00841777084657224,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_54.pt"
+    },
+    {
+      "epoch": 55,
+      "val_acc": 82.5104164481163,
+      "val_nll": 0.007659650690620765,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_55.pt"
+    },
+    {
+      "epoch": 56,
+      "val_acc": 82.76736110448837,
+      "val_nll": 0.00889595631218981,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_56.pt"
+    },
+    {
+      "epoch": 57,
+      "val_acc": 81.05208319425583,
+      "val_nll": 0.009091181085095741,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_57.pt"
+    },
+    {
+      "epoch": 58,
+      "val_acc": 84.17708349227905,
+      "val_nll": 0.007426791429752484,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_58.pt"
+    },
+    {
+      "epoch": 59,
+      "val_acc": 83.70138877630234,
+      "val_nll": 0.007838379212189465,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_59.pt"
+    },
+    {
+      "epoch": 60,
+      "val_acc": 84.5972221493721,
+      "val_nll": 0.0081965588463936,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_60.pt"
+    },
+    {
+      "epoch": 61,
+      "val_acc": 81.80555552244186,
+      "val_nll": 0.00855402296714601,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_61.pt"
+    },
+    {
+      "epoch": 62,
+      "val_acc": 82.48958325386047,
+      "val_nll": 0.00857262927107513,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_62.pt"
+    },
+    {
+      "epoch": 63,
+      "val_acc": 84.12152796983719,
+      "val_nll": 0.008231464204145595,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_63.pt"
+    },
+    {
+      "epoch": 64,
+      "val_acc": 80.5659721493721,
+      "val_nll": 0.008856358579359949,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_64.pt"
+    },
+    {
+      "epoch": 65,
+      "val_acc": 84.98958313465118,
+      "val_nll": 0.00754026527312817,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_65.pt"
+    },
+    {
+      "epoch": 66,
+      "val_acc": 82.35069477558136,
+      "val_nll": 0.00802801019162871,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_66.pt"
+    },
+    {
+      "epoch": 67,
+      "val_acc": 81.97916668653488,
+      "val_nll": 0.008284712174208834,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_67.pt"
+    },
+    {
+      "epoch": 68,
+      "val_acc": 82.02430534362793,
+      "val_nll": 0.008356200574198738,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_68.pt"
+    },
+    {
+      "epoch": 69,
+      "val_acc": 83.11111128330231,
+      "val_nll": 0.0079534750097082,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_69.pt"
+    },
+    {
+      "epoch": 70,
+      "val_acc": 83.41319417953491,
+      "val_nll": 0.008024023401667364,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_70.pt"
+    },
+    {
+      "epoch": 71,
+      "val_acc": 83.0069442987442,
+      "val_nll": 0.008462836147518828,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_71.pt"
+    },
+    {
+      "epoch": 72,
+      "val_acc": 84.08333319425583,
+      "val_nll": 0.008051912613445893,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_72.pt"
+    },
+    {
+      "epoch": 73,
+      "val_acc": 82.52777761220932,
+      "val_nll": 0.008380409270175733,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_73.pt"
+    },
+    {
+      "epoch": 74,
+      "val_acc": 82.23263895511627,
+      "val_nll": 0.008045718279026915,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_74.pt"
+    },
+    {
+      "epoch": 75,
+      "val_acc": 82.44791674613953,
+      "val_nll": 0.007860264184419066,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_75.pt"
+    },
+    {
+      "epoch": 76,
+      "val_acc": 82.21527737379074,
+      "val_nll": 0.008075900117401034,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_76.pt"
+    },
+    {
+      "epoch": 77,
+      "val_acc": 83.77777796983719,
+      "val_nll": 0.007726405716384761,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_77.pt"
+    },
+    {
+      "epoch": 78,
+      "val_acc": 81.73263901472092,
+      "val_nll": 0.007937815582263284,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_78.pt"
+    },
+    {
+      "epoch": 79,
+      "val_acc": 83.93749976158142,
+      "val_nll": 0.008238131601829082,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_79.pt"
+    },
+    {
+      "epoch": 80,
+      "val_acc": 82.48611122369766,
+      "val_nll": 0.008799077718103945,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_80.pt"
+    },
+    {
+      "epoch": 81,
+      "val_acc": 81.62152761220932,
+      "val_nll": 0.008959814314730466,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_81.pt"
+    },
+    {
+      "epoch": 82,
+      "val_acc": 84.78819471597672,
+      "val_nll": 0.007761680322946631,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_82.pt"
+    },
+    {
+      "epoch": 83,
+      "val_acc": 80.72569453716278,
+      "val_nll": 0.009381314048659987,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_83.pt"
+    },
+    {
+      "epoch": 84,
+      "val_acc": 80.67013895511627,
+      "val_nll": 0.008378068211022764,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_84.pt"
+    },
+    {
+      "epoch": 85,
+      "val_acc": 82.01388895511627,
+      "val_nll": 0.008600894175178836,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_85.pt"
+    },
+    {
+      "epoch": 86,
+      "val_acc": 81.67361128330231,
+      "val_nll": 0.008236601696698926,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_86.pt"
+    },
+    {
+      "epoch": 87,
+      "val_acc": 82.28124970197678,
+      "val_nll": 0.008078867477597668,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_87.pt"
+    },
+    {
+      "epoch": 88,
+      "val_acc": 83.28819459676743,
+      "val_nll": 0.008290925761684775,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_88.pt"
+    },
+    {
+      "epoch": 89,
+      "val_acc": 84.66319417953491,
+      "val_nll": 0.007377539166045608,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_89.pt"
+    },
+    {
+      "epoch": 90,
+      "val_acc": 83.86805576086044,
+      "val_nll": 0.007348648097249679,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_90.pt"
+    },
+    {
+      "epoch": 91,
+      "val_acc": 82.97916662693024,
+      "val_nll": 0.00812468474265188,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_91.pt"
+    },
+    {
+      "epoch": 92,
+      "val_acc": 84.27430576086044,
+      "val_nll": 0.007601130765397102,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_92.pt"
+    },
+    {
+      "epoch": 93,
+      "val_acc": 83.81250005960464,
+      "val_nll": 0.008151922463439406,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_93.pt"
+    },
+    {
+      "epoch": 94,
+      "val_acc": 82.53124994039536,
+      "val_nll": 0.008380853790731635,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_94.pt"
+    },
+    {
+      "epoch": 95,
+      "val_acc": 82.5034721493721,
+      "val_nll": 0.008270215887168888,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_95.pt"
+    },
+    {
+      "epoch": 96,
+      "val_acc": 79.99305564165115,
+      "val_nll": 0.009119771699770353,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_96.pt"
+    },
+    {
+      "epoch": 97,
+      "val_acc": 83.38194441795349,
+      "val_nll": 0.008089892496354879,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_97.pt"
+    },
+    {
+      "epoch": 98,
+      "val_acc": 84.26041662693024,
+      "val_nll": 0.007051729225495364,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_98.pt"
+    },
+    {
+      "epoch": 99,
+      "val_acc": 80.49652755260468,
+      "val_nll": 0.008282057042233646,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_99.pt"
+    },
+    {
+      "epoch": 100,
+      "val_acc": 82.97222232818604,
+      "val_nll": 0.008175152573385277,
+      "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_100.pt"
+    }
+  ],
+  "best_checkpoint": {
+    "epoch": 48,
+    "val_acc": 85.54166680574417,
+    "val_nll": 0.007575243593018968,
+    "checkpoint_path": "/Users/poojatodi/Desktop/model/few_shot_meta_learning/tabular/outputs/logs_bmaml_fcnet/Epoch_48.pt"
+  }
+}

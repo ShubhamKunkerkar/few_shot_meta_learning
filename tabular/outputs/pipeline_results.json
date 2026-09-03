@@ -1,4 +1,1607 @@
 {
-  "tasks_status": [],
-  "metrics": []
+  "tasks_status": [
+    {
+      "name": "MAML + FcNet Evaluation",
+      "path": "tabular/experiments/fcnet/eval_maml_fcnet.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "2.32s",
+      "message": "MAML + FcNet Evaluation completed in 2.32s"
+    },
+    {
+      "name": "PLATIPUS + FcNet Evaluation",
+      "path": "tabular/experiments/fcnet/eval_platipus_fcnet.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.77s",
+      "message": "PLATIPUS + FcNet Evaluation completed in 1.77s"
+    },
+    {
+      "name": "VAMPIRE + FcNet Evaluation",
+      "path": "tabular/experiments/fcnet/eval_vampire_fcnet.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.80s",
+      "message": "VAMPIRE + FcNet Evaluation completed in 1.80s"
+    },
+    {
+      "name": "ABML + FcNet Evaluation",
+      "path": "tabular/experiments/fcnet/eval_abml_fcnet.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.75s",
+      "message": "ABML + FcNet Evaluation completed in 1.75s"
+    },
+    {
+      "name": "BMAML + FcNet Evaluation",
+      "path": "tabular/experiments/fcnet/eval_bmaml_fcnet.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.83s",
+      "message": "BMAML + FcNet Evaluation completed in 1.83s"
+    },
+    {
+      "name": "MAML + Logistic Regression Evaluation",
+      "path": "tabular/experiments/logistic_regression/eval_maml_lr.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.77s",
+      "message": "MAML + Logistic Regression Evaluation completed in 1.77s"
+    },
+    {
+      "name": "PLATIPUS + Logistic Regression Evaluation",
+      "path": "tabular/experiments/logistic_regression/eval_platipus_lr.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.78s",
+      "message": "PLATIPUS + Logistic Regression Evaluation completed in 1.78s"
+    },
+    {
+      "name": "VAMPIRE + Logistic Regression Evaluation",
+      "path": "tabular/experiments/logistic_regression/eval_vampire_lr.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.79s",
+      "message": "VAMPIRE + Logistic Regression Evaluation completed in 1.79s"
+    },
+    {
+      "name": "ABML + Logistic Regression Evaluation",
+      "path": "tabular/experiments/logistic_regression/eval_abml_lr.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.84s",
+      "message": "ABML + Logistic Regression Evaluation completed in 1.84s"
+    },
+    {
+      "name": "BMAML + Logistic Regression Evaluation",
+      "path": "tabular/experiments/logistic_regression/eval_bmaml_lr.py",
+      "stage": "Stage 3: Fast Adaptation Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.70s",
+      "message": "BMAML + Logistic Regression Evaluation completed in 1.70s"
+    },
+    {
+      "name": "MAML + FcNet Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_maml_fcnet.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.58s",
+      "message": "MAML + FcNet Cold-Start Evaluation completed in 1.58s"
+    },
+    {
+      "name": "PLATIPUS + FcNet Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_platipus_fcnet.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.56s",
+      "message": "PLATIPUS + FcNet Cold-Start Evaluation completed in 1.56s"
+    },
+    {
+      "name": "VAMPIRE + FcNet Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_vampire_fcnet.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.57s",
+      "message": "VAMPIRE + FcNet Cold-Start Evaluation completed in 1.57s"
+    },
+    {
+      "name": "ABML + FcNet Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_abml_fcnet.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.56s",
+      "message": "ABML + FcNet Cold-Start Evaluation completed in 1.56s"
+    },
+    {
+      "name": "BMAML + FcNet Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_bmaml_fcnet.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.58s",
+      "message": "BMAML + FcNet Cold-Start Evaluation completed in 1.58s"
+    },
+    {
+      "name": "MAML + Logistic Regression Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_maml_lr.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.56s",
+      "message": "MAML + Logistic Regression Cold-Start Evaluation completed in 1.56s"
+    },
+    {
+      "name": "PLATIPUS + Logistic Regression Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_platipus_lr.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.54s",
+      "message": "PLATIPUS + Logistic Regression Cold-Start Evaluation completed in 1.54s"
+    },
+    {
+      "name": "VAMPIRE + Logistic Regression Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_vampire_lr.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.57s",
+      "message": "VAMPIRE + Logistic Regression Cold-Start Evaluation completed in 1.57s"
+    },
+    {
+      "name": "ABML + Logistic Regression Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_abml_lr.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.59s",
+      "message": "ABML + Logistic Regression Cold-Start Evaluation completed in 1.59s"
+    },
+    {
+      "name": "BMAML + Logistic Regression Cold-Start Evaluation",
+      "path": "tabular/experiments/no_adaptation/eval_cold_bmaml_lr.py",
+      "stage": "Stage 4: Cold-Start / Zero-Shot Evaluation",
+      "status": "SUCCESS",
+      "duration": "1.55s",
+      "message": "BMAML + Logistic Regression Cold-Start Evaluation completed in 1.55s"
+    }
+  ],
+  "metrics": [
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 83.8,
+      "macro_f1": 68.7,
+      "weighted_f1": 87.02,
+      "class_0": {
+        "precision": 99.1,
+        "recall": 83.17,
+        "f1": 90.44,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 31.63,
+        "recall": 91.18,
+        "f1": 46.97,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          331,
+          67
+        ],
+        [
+          3,
+          31
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 78.47,
+      "macro_f1": 51.93,
+      "weighted_f1": 82.52,
+      "class_0": {
+        "precision": 93.75,
+        "recall": 82.29,
+        "f1": 87.65,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 11.25,
+        "recall": 29.03,
+        "f1": 16.22,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          330,
+          71
+        ],
+        [
+          22,
+          9
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 90.51,
+      "macro_f1": 75.76,
+      "weighted_f1": 91.69,
+      "class_0": {
+        "precision": 98.11,
+        "recall": 91.46,
+        "f1": 94.67,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 44.26,
+        "recall": 79.41,
+        "f1": 56.84,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          364,
+          34
+        ],
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 72.92,
+      "macro_f1": 52.56,
+      "weighted_f1": 79.18,
+      "class_0": {
+        "precision": 95.22,
+        "recall": 74.56,
+        "f1": 83.64,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 13.56,
+        "recall": 51.61,
+        "f1": 21.48,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          299,
+          102
+        ],
+        [
+          15,
+          16
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 86.11,
+      "macro_f1": 71.37,
+      "weighted_f1": 88.68,
+      "class_0": {
+        "precision": 99.13,
+        "recall": 85.68,
+        "f1": 91.91,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 35.23,
+        "recall": 91.18,
+        "f1": 50.82,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          341,
+          57
+        ],
+        [
+          3,
+          31
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 77.31,
+      "macro_f1": 53.86,
+      "weighted_f1": 82.04,
+      "class_0": {
+        "precision": 94.69,
+        "recall": 80.05,
+        "f1": 86.76,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 13.98,
+        "recall": 41.94,
+        "f1": 20.97,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          321,
+          80
+        ],
+        [
+          18,
+          13
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 83.1,
+      "macro_f1": 68.71,
+      "weighted_f1": 86.59,
+      "class_0": {
+        "precision": 99.69,
+        "recall": 81.91,
+        "f1": 89.93,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 31.43,
+        "recall": 97.06,
+        "f1": 47.48,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          326,
+          72
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 79.4,
+      "macro_f1": 54.0,
+      "weighted_f1": 83.28,
+      "class_0": {
+        "precision": 94.32,
+        "recall": 82.79,
+        "f1": 88.18,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 13.75,
+        "recall": 35.48,
+        "f1": 19.82,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          332,
+          69
+        ],
+        [
+          20,
+          11
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 84.95,
+      "macro_f1": 70.76,
+      "weighted_f1": 87.93,
+      "class_0": {
+        "precision": 99.7,
+        "recall": 83.92,
+        "f1": 91.13,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 34.02,
+        "recall": 97.06,
+        "f1": 50.38,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          334,
+          64
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "FcNet",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 78.24,
+      "macro_f1": 52.51,
+      "weighted_f1": 82.45,
+      "class_0": {
+        "precision": 93.98,
+        "recall": 81.8,
+        "f1": 87.47,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 12.05,
+        "recall": 32.26,
+        "f1": 17.54,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          328,
+          73
+        ],
+        [
+          21,
+          10
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 80.32,
+      "macro_f1": 57.99,
+      "weighted_f1": 84.22,
+      "class_0": {
+        "precision": 95.66,
+        "recall": 82.54,
+        "f1": 88.62,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 18.6,
+        "recall": 51.61,
+        "f1": 27.35,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          331,
+          70
+        ],
+        [
+          15,
+          16
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 75.23,
+      "macro_f1": 54.13,
+      "weighted_f1": 80.78,
+      "class_0": {
+        "precision": 95.37,
+        "recall": 77.06,
+        "f1": 85.24,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 14.81,
+        "recall": 51.61,
+        "f1": 23.02,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          309,
+          92
+        ],
+        [
+          15,
+          16
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 77.08,
+      "macro_f1": 56.54,
+      "weighted_f1": 82.13,
+      "class_0": {
+        "precision": 96.04,
+        "recall": 78.55,
+        "f1": 86.42,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 17.31,
+        "recall": 58.06,
+        "f1": 26.67,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          315,
+          86
+        ],
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 80.79,
+      "macro_f1": 57.75,
+      "weighted_f1": 84.47,
+      "class_0": {
+        "precision": 95.43,
+        "recall": 83.29,
+        "f1": 88.95,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 18.29,
+        "recall": 48.39,
+        "f1": 26.55,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          334,
+          67
+        ],
+        [
+          16,
+          15
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "LogisticRegression",
+      "mode": "Fast Adaptation",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 81.48,
+      "macro_f1": 57.67,
+      "weighted_f1": 84.86,
+      "class_0": {
+        "precision": 95.21,
+        "recall": 84.29,
+        "f1": 89.42,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 18.18,
+        "recall": 45.16,
+        "f1": 25.93,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          338,
+          63
+        ],
+        [
+          17,
+          14
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 84.03,
+      "macro_f1": 69.34,
+      "weighted_f1": 87.22,
+      "class_0": {
+        "precision": 99.4,
+        "recall": 83.17,
+        "f1": 90.56,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 32.32,
+        "recall": 94.12,
+        "f1": 48.12,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          331,
+          67
+        ],
+        [
+          2,
+          32
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 78.94,
+      "macro_f1": 53.68,
+      "weighted_f1": 82.97,
+      "class_0": {
+        "precision": 94.29,
+        "recall": 82.29,
+        "f1": 87.88,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 13.41,
+        "recall": 35.48,
+        "f1": 19.47,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          330,
+          71
+        ],
+        [
+          20,
+          11
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 93.52,
+      "macro_f1": 81.54,
+      "weighted_f1": 94.07,
+      "class_0": {
+        "precision": 98.43,
+        "recall": 94.47,
+        "f1": 96.41,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 56.0,
+        "recall": 82.35,
+        "f1": 66.67,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          376,
+          22
+        ],
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 77.08,
+      "macro_f1": 52.43,
+      "weighted_f1": 81.76,
+      "class_0": {
+        "precision": 94.15,
+        "recall": 80.3,
+        "f1": 86.68,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 12.22,
+        "recall": 35.48,
+        "f1": 18.18,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          322,
+          79
+        ],
+        [
+          20,
+          11
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 85.88,
+      "macro_f1": 71.09,
+      "weighted_f1": 88.51,
+      "class_0": {
+        "precision": 99.13,
+        "recall": 85.43,
+        "f1": 91.77,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 34.83,
+        "recall": 91.18,
+        "f1": 50.41,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          340,
+          58
+        ],
+        [
+          3,
+          31
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 75.69,
+      "macro_f1": 53.34,
+      "weighted_f1": 81.0,
+      "class_0": {
+        "precision": 94.85,
+        "recall": 78.05,
+        "f1": 85.64,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 13.73,
+        "recall": 45.16,
+        "f1": 21.05,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          313,
+          88
+        ],
+        [
+          17,
+          14
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 86.11,
+      "macro_f1": 71.37,
+      "weighted_f1": 88.68,
+      "class_0": {
+        "precision": 99.13,
+        "recall": 85.68,
+        "f1": 91.91,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 35.23,
+        "recall": 91.18,
+        "f1": 50.82,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          341,
+          57
+        ],
+        [
+          3,
+          31
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 81.48,
+      "macro_f1": 55.53,
+      "weighted_f1": 84.63,
+      "class_0": {
+        "precision": 94.46,
+        "recall": 85.04,
+        "f1": 89.5,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 15.49,
+        "recall": 35.48,
+        "f1": 21.57,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          341,
+          60
+        ],
+        [
+          20,
+          11
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 84.72,
+      "macro_f1": 70.49,
+      "weighted_f1": 87.76,
+      "class_0": {
+        "precision": 99.7,
+        "recall": 83.67,
+        "f1": 90.98,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 33.67,
+        "recall": 97.06,
+        "f1": 50.0,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          333,
+          65
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "FcNet",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 77.31,
+      "macro_f1": 52.58,
+      "weighted_f1": 81.91,
+      "class_0": {
+        "precision": 94.17,
+        "recall": 80.55,
+        "f1": 86.83,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 12.36,
+        "recall": 35.48,
+        "f1": 18.33,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          323,
+          78
+        ],
+        [
+          20,
+          11
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "MAML",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 80.56,
+      "macro_f1": 57.56,
+      "weighted_f1": 84.32,
+      "class_0": {
+        "precision": 95.42,
+        "recall": 83.04,
+        "f1": 88.8,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 18.07,
+        "recall": 48.39,
+        "f1": 26.32,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          333,
+          68
+        ],
+        [
+          16,
+          15
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "PLATIPUS",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 79.63,
+      "macro_f1": 56.81,
+      "weighted_f1": 83.7,
+      "class_0": {
+        "precision": 95.36,
+        "recall": 82.04,
+        "f1": 88.2,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 17.24,
+        "recall": 48.39,
+        "f1": 25.42,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          329,
+          72
+        ],
+        [
+          16,
+          15
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "VAMPIRE",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 74.31,
+      "macro_f1": 54.5,
+      "weighted_f1": 80.21,
+      "class_0": {
+        "precision": 95.89,
+        "recall": 75.56,
+        "f1": 84.52,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 15.52,
+        "recall": 58.06,
+        "f1": 24.49,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          303,
+          98
+        ],
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "ABML",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 71.3,
+      "macro_f1": 51.5,
+      "weighted_f1": 78.04,
+      "class_0": {
+        "precision": 95.11,
+        "recall": 72.82,
+        "f1": 82.49,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 12.8,
+        "recall": 51.61,
+        "f1": 20.51,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          292,
+          109
+        ],
+        [
+          15,
+          16
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case1_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 42.13,
+      "macro_f1": 37.63,
+      "weighted_f1": 51.74,
+      "class_0": {
+        "precision": 99.33,
+        "recall": 37.44,
+        "f1": 54.38,
+        "support": 398
+      },
+      "class_1": {
+        "precision": 11.7,
+        "recall": 97.06,
+        "f1": 20.89,
+        "support": 34
+      },
+      "confusion_matrix": [
+        [
+          149,
+          249
+        ],
+        [
+          1,
+          33
+        ]
+      ]
+    },
+    {
+      "test_case": "Tast_Case2_routine_tasks.pt",
+      "task_id": 1,
+      "model": "BMAML",
+      "architecture": "LogisticRegression",
+      "mode": "Cold Start",
+      "query_size": [
+        432,
+        31
+      ],
+      "accuracy": 82.64,
+      "macro_f1": 57.96,
+      "weighted_f1": 85.55,
+      "class_0": {
+        "precision": 95.03,
+        "recall": 85.79,
+        "f1": 90.17,
+        "support": 401
+      },
+      "class_1": {
+        "precision": 18.57,
+        "recall": 41.94,
+        "f1": 25.74,
+        "support": 31
+      },
+      "confusion_matrix": [
+        [
+          344,
+          57
+        ],
+        [
+          18,
+          13
+        ]
+      ]
+    }
+  ],
+  "last_updated": "2026-08-31 11:50:06"
 }
